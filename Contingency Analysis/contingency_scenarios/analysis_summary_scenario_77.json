@@ -1,0 +1,14 @@
+{
+  "scenario_id": 77,
+  "contingency_type": "N-2",
+  "description": "Double outage: Line 05 - 06 + Line 26 - 27",
+  "analysis_timestamp": "2025-08-03T12:02:21.697515",
+  "generators_analyzed": 10,
+  "loads_analyzed": 19,
+  "total_sensitivities": 1244,
+  "y_matrix_size": 39,
+  "y_matrix_nnz": 0,
+  "y_matrix_density": 0,
+  "y_matrix_condition_number": NaN,
+  "construction_time_seconds": 0.020246028900146484
+}

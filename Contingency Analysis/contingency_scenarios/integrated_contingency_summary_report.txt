@@ -1,0 +1,242 @@
+INTEGRATED CONTINGENCY ANALYSIS WITH Y-MATRIX SUMMARY REPORT
+============================================================
+Generated: 2025-08-03T11:44:45.606951
+Project: 39 Bus New England System
+Study Case: RMS_Simulation
+
+H5 Files Created: 197
+------------------------------
+scenario_0.h5                346.4 KB | LF:✓ VS:✓ Y:39x39
+scenario_1.h5                117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_10.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_100.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_101.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_102.h5              346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_103.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_104.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_105.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_106.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_107.h5              353.5 KB | LF:✓ VS:✓ Y:39x39
+scenario_108.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_109.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_11.h5               347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_110.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_111.h5              327.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_112.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_113.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_114.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_115.h5              342.8 KB | LF:✓ VS:✓ Y:39x39
+scenario_116.h5              345.1 KB | LF:✓ VS:✓ Y:39x39
+scenario_117.h5              342.7 KB | LF:✓ VS:✓ Y:39x39
+scenario_118.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_119.h5              346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_12.h5               347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_120.h5              342.8 KB | LF:✓ VS:✓ Y:39x39
+scenario_121.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_122.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_123.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_124.h5              345.1 KB | LF:✓ VS:✓ Y:39x39
+scenario_125.h5              346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_126.h5              346.1 KB | LF:✓ VS:✓ Y:39x39
+scenario_127.h5              344.3 KB | LF:✓ VS:✓ Y:39x39
+scenario_128.h5              346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_129.h5              342.1 KB | LF:✓ VS:✓ Y:39x39
+scenario_13.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_130.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_131.h5              338.2 KB | LF:✓ VS:✓ Y:39x39
+scenario_132.h5              342.8 KB | LF:✓ VS:✓ Y:39x39
+scenario_133.h5              346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_134.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_135.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_136.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_137.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_138.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_139.h5              342.8 KB | LF:✓ VS:✓ Y:39x39
+scenario_14.h5               350.5 KB | LF:✓ VS:✓ Y:39x39
+scenario_140.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_141.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_142.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_143.h5              346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_144.h5              338.2 KB | LF:✓ VS:✓ Y:39x39
+scenario_145.h5              347.4 KB | LF:✓ VS:✓ Y:39x39
+scenario_146.h5              346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_147.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_148.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_149.h5              342.8 KB | LF:✓ VS:✓ Y:39x39
+scenario_15.h5               347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_150.h5              346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_151.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_152.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_153.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_154.h5              346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_155.h5              338.2 KB | LF:✓ VS:✓ Y:39x39
+scenario_156.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_157.h5              347.4 KB | LF:✓ VS:✓ Y:39x39
+scenario_158.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_159.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_16.h5               350.5 KB | LF:✓ VS:✓ Y:39x39
+scenario_160.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_161.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_162.h5              346.4 KB | LF:✓ VS:✓ Y:39x39
+scenario_163.h5              346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_164.h5              342.8 KB | LF:✓ VS:✓ Y:39x39
+scenario_165.h5              117.6 KB | LF:✗ VS:✓ Y:39x39
+scenario_166.h5              347.4 KB | LF:✓ VS:✓ Y:39x39
+scenario_167.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_168.h5              346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_169.h5              346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_17.h5               347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_170.h5              346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_171.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_172.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_173.h5              348.1 KB | LF:✓ VS:✓ Y:39x39
+scenario_174.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_175.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_176.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_177.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_178.h5              348.1 KB | LF:✓ VS:✓ Y:39x39
+scenario_179.h5              339.1 KB | LF:✓ VS:✓ Y:39x39
+scenario_18.h5               347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_180.h5              335.3 KB | LF:✓ VS:✓ Y:39x39
+scenario_181.h5              117.6 KB | LF:✗ VS:✓ Y:39x39
+scenario_182.h5              346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_183.h5              347.1 KB | LF:✓ VS:✓ Y:39x39
+scenario_184.h5              347.1 KB | LF:✓ VS:✓ Y:39x39
+scenario_185.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_186.h5              117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_187.h5              346.5 KB | LF:✓ VS:✓ Y:39x39
+scenario_188.h5              333.0 KB | LF:✓ VS:✓ Y:39x39
+scenario_189.h5              341.2 KB | LF:✓ VS:✓ Y:39x39
+scenario_19.h5               350.5 KB | LF:✓ VS:✓ Y:39x39
+scenario_190.h5              343.5 KB | LF:✓ VS:✓ Y:39x39
+scenario_191.h5              339.8 KB | LF:✓ VS:✓ Y:39x39
+scenario_192.h5              338.7 KB | LF:✓ VS:✓ Y:39x39
+scenario_193.h5              341.2 KB | LF:✓ VS:✓ Y:39x39
+scenario_194.h5              338.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_195.h5              345.1 KB | LF:✓ VS:✓ Y:39x39
+scenario_196.h5              348.3 KB | LF:✓ VS:✓ Y:39x39
+scenario_2.h5                347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_20.h5               350.5 KB | LF:✓ VS:✓ Y:39x39
+scenario_21.h5               350.5 KB | LF:✓ VS:✓ Y:39x39
+scenario_22.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_23.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_24.h5               347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_25.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_26.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_27.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_28.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_29.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_3.h5                350.5 KB | LF:✓ VS:✓ Y:39x39
+scenario_30.h5               347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_31.h5               347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_32.h5               347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_33.h5               347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_34.h5               347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_35.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_36.h5               337.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_37.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_38.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_39.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_4.h5                117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_40.h5               347.1 KB | LF:✓ VS:✓ Y:39x39
+scenario_41.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_42.h5               346.4 KB | LF:✓ VS:✓ Y:39x39
+scenario_43.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_44.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_45.h5               346.4 KB | LF:✓ VS:✓ Y:39x39
+scenario_46.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_47.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_48.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_49.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_5.h5                347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_50.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_51.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_52.h5               351.1 KB | LF:✓ VS:✓ Y:39x39
+scenario_53.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_54.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_55.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_56.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_57.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_58.h5               349.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_59.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_6.h5                347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_60.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_61.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_62.h5               350.3 KB | LF:✓ VS:✓ Y:39x39
+scenario_63.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_64.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_65.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_66.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_67.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_68.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_69.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_7.h5                350.5 KB | LF:✓ VS:✓ Y:39x39
+scenario_70.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_71.h5               349.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_72.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_73.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_74.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_75.h5               117.6 KB | LF:✗ VS:✓ Y:39x39
+scenario_76.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_77.h5               346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_78.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_79.h5               349.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_8.h5                347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_80.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_81.h5               269.4 KB | LF:✓ VS:✓ Y:39x39
+scenario_82.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_83.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_84.h5               346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_85.h5               338.2 KB | LF:✓ VS:✓ Y:39x39
+scenario_86.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_87.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_88.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_89.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_9.h5                347.6 KB | LF:✓ VS:✓ Y:39x39
+scenario_90.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_91.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_92.h5               349.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_93.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_94.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_95.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_96.h5               351.2 KB | LF:✓ VS:✓ Y:39x39
+scenario_97.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+scenario_98.h5               346.9 KB | LF:✓ VS:✓ Y:39x39
+scenario_99.h5               117.1 KB | LF:✗ VS:✓ Y:39x39
+
+Analysis Summary:
+--------------------
+Total scenarios: 197
+Load flow converged: 91/197 (46.2%)
+Voltage sensitivity completed: 91/197 (46.2%)
+Y-matrix completed: 197/197 (100.0%)
+Total sensitivities calculated: 112633
+Average Y-matrix size: 39 x 39
+
+Integrated Analysis Modules:
+• Scenario metadata and disconnection actions
+• Load flow results (convergence, voltages, angles)
+• Comprehensive power flow data (MW/MVAR for all elements)
+• Detailed system data with impedances
+• Voltage sensitivity analysis results (for converged cases)
+• ** Y-matrix (admittance matrix) with properties
+
+Key Advantages of Integrated Approach:
+• Y-matrix built for both converged and non-converged load flows
+• All analysis in single execution loop (no separate runs needed)
+• Consistent data across all modules
+• Efficient execution with shared PowerFactory state
+• Complete analysis results in single H5 file per scenario
+
+Y-Matrix Building Parameters:
+• Base power: 100.0 MVA
+• Built from impedance data collected during data collection phase
+• Includes lines, transformers, generators, loads, and shunts
+• Matrix properties calculated (eigenvalues, condition number)
+• Stored in sparse format for efficiency
+
+Voltage Sensitivity Parameters:
+• P perturbation: +/- 10.0 MW
+• Q perturbation: +/- 5.0 MVAR
+• Minimum sensitivity threshold: 1e-06
+• Only performed for load flow converged cases

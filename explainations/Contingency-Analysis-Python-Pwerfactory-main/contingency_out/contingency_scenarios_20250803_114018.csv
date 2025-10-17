@@ -1,0 +1,198 @@
+scenario_id,contingency_type,outage_type,description,severity,num_elements_out,element1_type,element1_name,element1_class,element1_index,element1_rating_capacity,element2_type,element2_name,element2_class,element2_index,element2_rating_capacity,generation_date,notes
+0,BASE,none,Base case - no outages,none,0,none,none,none,-1,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Reference case with all elements in service
+1,N-1,line,Line outage: Line 16 - 19,medium,1,line,Line 16 - 19,ElmLne,0,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+2,N-1,line,Line outage: Line 05 - 06,medium,1,line,Line 05 - 06,ElmLne,1,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+3,N-1,line,Line outage: Line 03 - 18,medium,1,line,Line 03 - 18,ElmLne,2,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+4,N-1,line,Line outage: Line 09 - 39,medium,1,line,Line 09 - 39,ElmLne,3,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+5,N-1,line,Line outage: Line 07 - 08,medium,1,line,Line 07 - 08,ElmLne,4,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+6,N-1,line,Line outage: Line 26 - 28,medium,1,line,Line 26 - 28,ElmLne,5,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+7,N-1,line,Line outage: Line 03 - 04,medium,1,line,Line 03 - 04,ElmLne,6,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+8,N-1,line,Line outage: Line 21 - 22,medium,1,line,Line 21 - 22,ElmLne,7,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+9,N-1,line,Line outage: Line 05 - 08,medium,1,line,Line 05 - 08,ElmLne,8,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+10,N-1,line,Line outage: Line 14 - 15,medium,1,line,Line 14 - 15,ElmLne,9,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+11,N-1,line,Line outage: Line 22 - 23,medium,1,line,Line 22 - 23,ElmLne,10,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+12,N-1,line,Line outage: Line 26 - 27,medium,1,line,Line 26 - 27,ElmLne,11,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+13,N-1,line,Line outage: Line 01 - 39,medium,1,line,Line 01 - 39,ElmLne,12,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+14,N-1,line,Line outage: Line 10 - 13,medium,1,line,Line 10 - 13,ElmLne,13,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+15,N-1,line,Line outage: Line 06 - 07,medium,1,line,Line 06 - 07,ElmLne,14,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+16,N-1,line,Line outage: Line 10 - 11,medium,1,line,Line 10 - 11,ElmLne,15,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+17,N-1,line,Line outage: Line 16 - 24,medium,1,line,Line 16 - 24,ElmLne,16,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+18,N-1,line,Line outage: Line 16 - 21,medium,1,line,Line 16 - 21,ElmLne,17,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+19,N-1,line,Line outage: Line 06 - 11,medium,1,line,Line 06 - 11,ElmLne,18,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+20,N-1,line,Line outage: Line 17 - 18,medium,1,line,Line 17 - 18,ElmLne,19,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+21,N-1,line,Line outage: Line 25 - 26,medium,1,line,Line 25 - 26,ElmLne,20,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+22,N-1,line,Line outage: Line 04 - 05,medium,1,line,Line 04 - 05,ElmLne,21,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+23,N-1,line,Line outage: Line 02 - 03,medium,1,line,Line 02 - 03,ElmLne,22,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+24,N-1,line,Line outage: Line 26 - 29,medium,1,line,Line 26 - 29,ElmLne,23,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+25,N-1,line,Line outage: Line 15 - 16,medium,1,line,Line 15 - 16,ElmLne,24,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+26,N-1,line,Line outage: Line 08 - 09,medium,1,line,Line 08 - 09,ElmLne,25,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+27,N-1,line,Line outage: Line 13 - 14,medium,1,line,Line 13 - 14,ElmLne,26,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+28,N-1,line,Line outage: Line 01 - 02,medium,1,line,Line 01 - 02,ElmLne,27,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+29,N-1,line,Line outage: Line 02 - 25,medium,1,line,Line 02 - 25,ElmLne,28,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+30,N-1,line,Line outage: Line 04 - 14,medium,1,line,Line 04 - 14,ElmLne,29,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+31,N-1,line,Line outage: Line 16 - 17,medium,1,line,Line 16 - 17,ElmLne,30,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+32,N-1,line,Line outage: Line 28 - 29,medium,1,line,Line 28 - 29,ElmLne,31,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+33,N-1,line,Line outage: Line 23 - 24,medium,1,line,Line 23 - 24,ElmLne,32,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+34,N-1,line,Line outage: Line 17 - 27,medium,1,line,Line 17 - 27,ElmLne,33,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+35,N-1,transformer,Transformer outage: Trf 25 - 37,high,1,transformer,Trf 25 - 37,ElmTr2,0,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+36,N-1,transformer,Transformer outage: Trf 19 - 20,high,1,transformer,Trf 19 - 20,ElmTr2,1,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+37,N-1,transformer,Transformer outage: Trf 20 - 34,high,1,transformer,Trf 20 - 34,ElmTr2,2,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+38,N-1,transformer,Transformer outage: Trf 19 - 33,high,1,transformer,Trf 19 - 33,ElmTr2,3,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+39,N-1,transformer,Transformer outage: Trf 10 - 32,high,1,transformer,Trf 10 - 32,ElmTr2,4,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+40,N-1,transformer,Transformer outage: Trf 23 - 36,high,1,transformer,Trf 23 - 36,ElmTr2,5,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+41,N-1,transformer,Transformer outage: Trf 02 - 30,high,1,transformer,Trf 02 - 30,ElmTr2,6,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+42,N-1,transformer,Transformer outage: Trf 11 - 12,high,1,transformer,Trf 11 - 12,ElmTr2,7,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+43,N-1,transformer,Transformer outage: Trf 06 - 31,high,1,transformer,Trf 06 - 31,ElmTr2,8,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+44,N-1,transformer,Transformer outage: Trf 22 - 35,high,1,transformer,Trf 22 - 35,ElmTr2,9,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+45,N-1,transformer,Transformer outage: Trf 13 - 12,high,1,transformer,Trf 13 - 12,ElmTr2,10,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+46,N-1,transformer,Transformer outage: Trf 29 - 38,high,1,transformer,Trf 29 - 38,ElmTr2,11,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+47,N-1,generator,Generator outage: G 01,medium,1,generator,G 01,ElmSym,0,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+48,N-1,generator,Generator outage: G 02,medium,1,generator,G 02,ElmSym,1,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+49,N-1,generator,Generator outage: G 03,medium,1,generator,G 03,ElmSym,2,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+50,N-1,generator,Generator outage: G 04,medium,1,generator,G 04,ElmSym,3,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+51,N-1,generator,Generator outage: G 06,medium,1,generator,G 06,ElmSym,4,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+52,N-1,generator,Generator outage: G 07,medium,1,generator,G 07,ElmSym,5,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+53,N-1,generator,Generator outage: G 08,medium,1,generator,G 08,ElmSym,6,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+54,N-1,generator,Generator outage: G 10,medium,1,generator,G 10,ElmSym,7,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+55,N-1,generator,Generator outage: G 05,medium,1,generator,G 05,ElmSym,8,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+56,N-1,generator,Generator outage: G 09,medium,1,generator,G 09,ElmSym,9,0.0,none,none,none,-1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-1 contingency
+57,N-2,line+generator,Mixed outage: Line 01 - 02 + G 06,critical,2,line,Line 01 - 02,ElmLne,27,0.0,generator,G 06,ElmSym,4,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+58,N-2,line+line,Double outage: Line 26 - 28 + Line 17 - 18,critical,2,line,Line 26 - 28,ElmLne,5,0.0,line,Line 17 - 18,ElmLne,19,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+59,N-2,line+line,Double outage: Line 05 - 06 + Line 05 - 08,critical,2,line,Line 05 - 06,ElmLne,1,0.0,line,Line 05 - 08,ElmLne,8,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+60,N-2,line+transformer,Double outage: Line 06 - 07 + Trf 23 - 36,critical,2,line,Line 06 - 07,ElmLne,14,0.0,transformer,Trf 23 - 36,ElmTr2,5,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+61,N-2,line+transformer,Double outage: Line 01 - 39 + Trf 02 - 30,critical,2,line,Line 01 - 39,ElmLne,12,0.0,transformer,Trf 02 - 30,ElmTr2,6,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+62,N-2,line+line,Double outage: Line 26 - 27 + Line 04 - 14,critical,2,line,Line 26 - 27,ElmLne,11,0.0,line,Line 04 - 14,ElmLne,29,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+63,N-2,line+transformer,Double outage: Line 03 - 04 + Trf 19 - 33,critical,2,line,Line 03 - 04,ElmLne,6,0.0,transformer,Trf 19 - 33,ElmTr2,3,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+64,N-2,line+transformer,Double outage: Line 07 - 08 + Trf 02 - 30,critical,2,line,Line 07 - 08,ElmLne,4,0.0,transformer,Trf 02 - 30,ElmTr2,6,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+65,N-2,transformer+generator,Mixed outage: Trf 19 - 20 + G 01,critical,2,transformer,Trf 19 - 20,ElmTr2,1,0.0,generator,G 01,ElmSym,0,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+66,N-2,line+generator,Mixed outage: Line 05 - 08 + G 02,critical,2,line,Line 05 - 08,ElmLne,8,0.0,generator,G 02,ElmSym,1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+67,N-2,line+line,Double outage: Line 07 - 08 + Line 14 - 15,critical,2,line,Line 07 - 08,ElmLne,4,0.0,line,Line 14 - 15,ElmLne,9,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+68,N-2,line+generator,Mixed outage: Line 16 - 21 + G 06,critical,2,line,Line 16 - 21,ElmLne,17,0.0,generator,G 06,ElmSym,4,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+69,N-2,line+line,Double outage: Line 01 - 02 + Line 02 - 25,critical,2,line,Line 01 - 02,ElmLne,27,0.0,line,Line 02 - 25,ElmLne,28,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+70,N-2,line+line,Double outage: Line 05 - 06 + Line 02 - 03,critical,2,line,Line 05 - 06,ElmLne,1,0.0,line,Line 02 - 03,ElmLne,22,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+71,N-2,line+line,Double outage: Line 05 - 06 + Line 06 - 11,critical,2,line,Line 05 - 06,ElmLne,1,0.0,line,Line 06 - 11,ElmLne,18,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+72,N-2,line+line,Double outage: Line 07 - 08 + Line 02 - 03,critical,2,line,Line 07 - 08,ElmLne,4,0.0,line,Line 02 - 03,ElmLne,22,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+73,N-2,line+line,Double outage: Line 26 - 27 + Line 17 - 18,critical,2,line,Line 26 - 27,ElmLne,11,0.0,line,Line 17 - 18,ElmLne,19,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+74,N-2,line+line,Double outage: Line 01 - 39 + Line 10 - 11,critical,2,line,Line 01 - 39,ElmLne,12,0.0,line,Line 10 - 11,ElmLne,15,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+75,N-2,transformer+transformer,Double outage: Trf 13 - 12 + Trf 29 - 38,critical,2,transformer,Trf 13 - 12,ElmTr2,10,0.0,transformer,Trf 29 - 38,ElmTr2,11,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+76,N-2,line+generator,Mixed outage: Line 17 - 18 + G 10,critical,2,line,Line 17 - 18,ElmLne,19,0.0,generator,G 10,ElmSym,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+77,N-2,line+line,Double outage: Line 05 - 06 + Line 26 - 27,critical,2,line,Line 05 - 06,ElmLne,1,0.0,line,Line 26 - 27,ElmLne,11,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+78,N-2,line+generator,Mixed outage: Line 26 - 27 + G 06,critical,2,line,Line 26 - 27,ElmLne,11,0.0,generator,G 06,ElmSym,4,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+79,N-2,line+line,Double outage: Line 22 - 23 + Line 10 - 13,critical,2,line,Line 22 - 23,ElmLne,10,0.0,line,Line 10 - 13,ElmLne,13,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+80,N-2,transformer+generator,Mixed outage: Trf 22 - 35 + G 02,critical,2,transformer,Trf 22 - 35,ElmTr2,9,0.0,generator,G 02,ElmSym,1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+81,N-2,line+generator,Mixed outage: Line 04 - 14 + G 07,critical,2,line,Line 04 - 14,ElmLne,29,0.0,generator,G 07,ElmSym,5,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+82,N-2,transformer+generator,Mixed outage: Trf 02 - 30 + G 02,critical,2,transformer,Trf 02 - 30,ElmTr2,6,0.0,generator,G 02,ElmSym,1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+83,N-2,line+transformer,Double outage: Line 13 - 14 + Trf 11 - 12,critical,2,line,Line 13 - 14,ElmLne,26,0.0,transformer,Trf 11 - 12,ElmTr2,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+84,N-2,line+line,Double outage: Line 26 - 27 + Line 26 - 29,critical,2,line,Line 26 - 27,ElmLne,11,0.0,line,Line 26 - 29,ElmLne,23,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+85,N-2,line+transformer,Double outage: Line 16 - 17 + Trf 19 - 20,critical,2,line,Line 16 - 17,ElmLne,30,0.0,transformer,Trf 19 - 20,ElmTr2,1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+86,N-2,line+generator,Mixed outage: Line 16 - 21 + G 02,critical,2,line,Line 16 - 21,ElmLne,17,0.0,generator,G 02,ElmSym,1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+87,N-2,line+transformer,Double outage: Line 06 - 07 + Trf 29 - 38,critical,2,line,Line 06 - 07,ElmLne,14,0.0,transformer,Trf 29 - 38,ElmTr2,11,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+88,N-2,line+line,Double outage: Line 16 - 19 + Line 06 - 07,critical,2,line,Line 16 - 19,ElmLne,0,0.0,line,Line 06 - 07,ElmLne,14,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+89,N-2,line+transformer,Double outage: Line 21 - 22 + Trf 02 - 30,critical,2,line,Line 21 - 22,ElmLne,7,0.0,transformer,Trf 02 - 30,ElmTr2,6,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+90,N-2,transformer+generator,Mixed outage: Trf 23 - 36 + G 06,critical,2,transformer,Trf 23 - 36,ElmTr2,5,0.0,generator,G 06,ElmSym,4,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+91,N-2,line+line,Double outage: Line 01 - 02 + Line 04 - 14,critical,2,line,Line 01 - 02,ElmLne,27,0.0,line,Line 04 - 14,ElmLne,29,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+92,N-2,line+line,Double outage: Line 17 - 18 + Line 23 - 24,critical,2,line,Line 17 - 18,ElmLne,19,0.0,line,Line 23 - 24,ElmLne,32,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+93,N-2,line+line,Double outage: Line 21 - 22 + Line 23 - 24,critical,2,line,Line 21 - 22,ElmLne,7,0.0,line,Line 23 - 24,ElmLne,32,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+94,N-2,line+line,Double outage: Line 26 - 27 + Line 01 - 39,critical,2,line,Line 26 - 27,ElmLne,11,0.0,line,Line 01 - 39,ElmLne,12,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+95,N-2,line+line,Double outage: Line 17 - 18 + Line 08 - 09,critical,2,line,Line 17 - 18,ElmLne,19,0.0,line,Line 08 - 09,ElmLne,25,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+96,N-2,line+line,Double outage: Line 07 - 08 + Line 25 - 26,critical,2,line,Line 07 - 08,ElmLne,4,0.0,line,Line 25 - 26,ElmLne,20,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+97,N-2,line+transformer,Double outage: Line 02 - 03 + Trf 06 - 31,critical,2,line,Line 02 - 03,ElmLne,22,0.0,transformer,Trf 06 - 31,ElmTr2,8,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+98,N-2,line+line,Double outage: Line 07 - 08 + Line 04 - 14,critical,2,line,Line 07 - 08,ElmLne,4,0.0,line,Line 04 - 14,ElmLne,29,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+99,N-2,line+line,Double outage: Line 04 - 05 + Line 02 - 03,critical,2,line,Line 04 - 05,ElmLne,21,0.0,line,Line 02 - 03,ElmLne,22,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+100,N-2,line+transformer,Double outage: Line 17 - 18 + Trf 02 - 30,critical,2,line,Line 17 - 18,ElmLne,19,0.0,transformer,Trf 02 - 30,ElmTr2,6,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+101,N-2,line+generator,Mixed outage: Line 25 - 26 + G 02,critical,2,line,Line 25 - 26,ElmLne,20,0.0,generator,G 02,ElmSym,1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+102,N-2,line+line,Double outage: Line 06 - 07 + Line 16 - 21,critical,2,line,Line 06 - 07,ElmLne,14,0.0,line,Line 16 - 21,ElmLne,17,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+103,N-2,line+transformer,Double outage: Line 05 - 06 + Trf 29 - 38,critical,2,line,Line 05 - 06,ElmLne,1,0.0,transformer,Trf 29 - 38,ElmTr2,11,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+104,N-2,transformer+generator,Mixed outage: Trf 29 - 38 + G 09,critical,2,transformer,Trf 29 - 38,ElmTr2,11,0.0,generator,G 09,ElmSym,9,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+105,N-2,line+transformer,Double outage: Line 28 - 29 + Trf 06 - 31,critical,2,line,Line 28 - 29,ElmLne,31,0.0,transformer,Trf 06 - 31,ElmTr2,8,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+106,N-2,line+generator,Mixed outage: Line 03 - 04 + G 04,critical,2,line,Line 03 - 04,ElmLne,6,0.0,generator,G 04,ElmSym,3,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+107,N-2,line+line,Double outage: Line 03 - 04 + Line 21 - 22,critical,2,line,Line 03 - 04,ElmLne,6,0.0,line,Line 21 - 22,ElmLne,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+108,N-2,line+transformer,Double outage: Line 02 - 03 + Trf 23 - 36,critical,2,line,Line 02 - 03,ElmLne,22,0.0,transformer,Trf 23 - 36,ElmTr2,5,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+109,N-2,line+line,Double outage: Line 09 - 39 + Line 17 - 27,critical,2,line,Line 09 - 39,ElmLne,3,0.0,line,Line 17 - 27,ElmLne,33,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+110,N-2,line+generator,Mixed outage: Line 14 - 15 + G 07,critical,2,line,Line 14 - 15,ElmLne,9,0.0,generator,G 07,ElmSym,5,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+111,N-2,line+line,Double outage: Line 16 - 24 + Line 16 - 21,critical,2,line,Line 16 - 24,ElmLne,16,0.0,line,Line 16 - 21,ElmLne,17,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+112,N-2,line+generator,Mixed outage: Line 08 - 09 + G 03,critical,2,line,Line 08 - 09,ElmLne,25,0.0,generator,G 03,ElmSym,2,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+113,N-2,line+generator,Mixed outage: Line 26 - 29 + G 02,critical,2,line,Line 26 - 29,ElmLne,23,0.0,generator,G 02,ElmSym,1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+114,N-2,line+line,Double outage: Line 04 - 05 + Line 01 - 02,critical,2,line,Line 04 - 05,ElmLne,21,0.0,line,Line 01 - 02,ElmLne,27,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+115,N-2,line+generator,Mixed outage: Line 06 - 07 + G 10,critical,2,line,Line 06 - 07,ElmLne,14,0.0,generator,G 10,ElmSym,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+116,N-2,line+transformer,Double outage: Line 14 - 15 + Trf 25 - 37,critical,2,line,Line 14 - 15,ElmLne,9,0.0,transformer,Trf 25 - 37,ElmTr2,0,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+117,N-2,transformer+generator,Mixed outage: Trf 02 - 30 + G 10,critical,2,transformer,Trf 02 - 30,ElmTr2,6,0.0,generator,G 10,ElmSym,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+118,N-2,line+line,Double outage: Line 09 - 39 + Line 06 - 07,critical,2,line,Line 09 - 39,ElmLne,3,0.0,line,Line 06 - 07,ElmLne,14,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+119,N-2,line+line,Double outage: Line 03 - 18 + Line 21 - 22,critical,2,line,Line 03 - 18,ElmLne,2,0.0,line,Line 21 - 22,ElmLne,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+120,N-2,line+generator,Mixed outage: Line 28 - 29 + G 09,critical,2,line,Line 28 - 29,ElmLne,31,0.0,generator,G 09,ElmSym,9,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+121,N-2,line+transformer,Double outage: Line 26 - 27 + Trf 10 - 32,critical,2,line,Line 26 - 27,ElmLne,11,0.0,transformer,Trf 10 - 32,ElmTr2,4,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+122,N-2,line+transformer,Double outage: Line 10 - 11 + Trf 10 - 32,critical,2,line,Line 10 - 11,ElmLne,15,0.0,transformer,Trf 10 - 32,ElmTr2,4,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+123,N-2,line+transformer,Double outage: Line 09 - 39 + Trf 19 - 20,critical,2,line,Line 09 - 39,ElmLne,3,0.0,transformer,Trf 19 - 20,ElmTr2,1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+124,N-2,line+transformer,Double outage: Line 07 - 08 + Trf 19 - 33,critical,2,line,Line 07 - 08,ElmLne,4,0.0,transformer,Trf 19 - 33,ElmTr2,3,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+125,N-2,line+transformer,Double outage: Line 16 - 17 + Trf 13 - 12,critical,2,line,Line 16 - 17,ElmLne,30,0.0,transformer,Trf 13 - 12,ElmTr2,10,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+126,N-2,line+generator,Mixed outage: Line 13 - 14 + G 08,critical,2,line,Line 13 - 14,ElmLne,26,0.0,generator,G 08,ElmSym,6,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+127,N-2,line+transformer,Double outage: Line 04 - 05 + Trf 25 - 37,critical,2,line,Line 04 - 05,ElmLne,21,0.0,transformer,Trf 25 - 37,ElmTr2,0,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+128,N-2,line+line,Double outage: Line 05 - 08 + Line 22 - 23,critical,2,line,Line 05 - 08,ElmLne,8,0.0,line,Line 22 - 23,ElmLne,10,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+129,N-2,line+transformer,Double outage: Line 04 - 05 + Trf 29 - 38,critical,2,line,Line 04 - 05,ElmLne,21,0.0,transformer,Trf 29 - 38,ElmTr2,11,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+130,N-2,line+transformer,Double outage: Line 25 - 26 + Trf 10 - 32,critical,2,line,Line 25 - 26,ElmLne,20,0.0,transformer,Trf 10 - 32,ElmTr2,4,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+131,N-2,line+transformer,Double outage: Line 22 - 23 + Trf 19 - 20,critical,2,line,Line 22 - 23,ElmLne,10,0.0,transformer,Trf 19 - 20,ElmTr2,1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+132,N-2,line+generator,Mixed outage: Line 17 - 27 + G 10,critical,2,line,Line 17 - 27,ElmLne,33,0.0,generator,G 10,ElmSym,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+133,N-2,line+line,Double outage: Line 06 - 07 + Line 02 - 03,critical,2,line,Line 06 - 07,ElmLne,14,0.0,line,Line 02 - 03,ElmLne,22,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+134,N-2,transformer+generator,Mixed outage: Trf 02 - 30 + G 03,critical,2,transformer,Trf 02 - 30,ElmTr2,6,0.0,generator,G 03,ElmSym,2,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+135,N-2,transformer+generator,Mixed outage: Trf 20 - 34 + G 06,critical,2,transformer,Trf 20 - 34,ElmTr2,2,0.0,generator,G 06,ElmSym,4,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+136,N-2,line+generator,Mixed outage: Line 04 - 14 + G 03,critical,2,line,Line 04 - 14,ElmLne,29,0.0,generator,G 03,ElmSym,2,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+137,N-2,line+line,Double outage: Line 09 - 39 + Line 06 - 11,critical,2,line,Line 09 - 39,ElmLne,3,0.0,line,Line 06 - 11,ElmLne,18,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+138,N-2,line+generator,Mixed outage: Line 04 - 05 + G 03,critical,2,line,Line 04 - 05,ElmLne,21,0.0,generator,G 03,ElmSym,2,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+139,N-2,line+generator,Mixed outage: Line 13 - 14 + G 07,critical,2,line,Line 13 - 14,ElmLne,26,0.0,generator,G 07,ElmSym,5,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+140,N-2,line+line,Double outage: Line 05 - 08 + Line 01 - 02,critical,2,line,Line 05 - 08,ElmLne,8,0.0,line,Line 01 - 02,ElmLne,27,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+141,N-2,line+generator,Mixed outage: Line 26 - 28 + G 05,critical,2,line,Line 26 - 28,ElmLne,5,0.0,generator,G 05,ElmSym,8,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+142,N-2,transformer+generator,Mixed outage: Trf 29 - 38 + G 05,critical,2,transformer,Trf 29 - 38,ElmTr2,11,0.0,generator,G 05,ElmSym,8,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+143,N-2,line+line,Double outage: Line 05 - 08 + Line 26 - 27,critical,2,line,Line 05 - 08,ElmLne,8,0.0,line,Line 26 - 27,ElmLne,11,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+144,N-2,line+transformer,Double outage: Line 23 - 24 + Trf 19 - 20,critical,2,line,Line 23 - 24,ElmLne,32,0.0,transformer,Trf 19 - 20,ElmTr2,1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+145,N-2,line+transformer,Double outage: Line 02 - 03 + Trf 11 - 12,critical,2,line,Line 02 - 03,ElmLne,22,0.0,transformer,Trf 11 - 12,ElmTr2,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+146,N-2,line+line,Double outage: Line 06 - 07 + Line 02 - 25,critical,2,line,Line 06 - 07,ElmLne,14,0.0,line,Line 02 - 25,ElmLne,28,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+147,N-2,line+generator,Mixed outage: Line 01 - 02 + G 07,critical,2,line,Line 01 - 02,ElmLne,27,0.0,generator,G 07,ElmSym,5,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+148,N-2,transformer+generator,Mixed outage: Trf 19 - 33 + G 06,critical,2,transformer,Trf 19 - 33,ElmTr2,3,0.0,generator,G 06,ElmSym,4,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+149,N-2,line+generator,Mixed outage: Line 22 - 23 + G 07,critical,2,line,Line 22 - 23,ElmLne,10,0.0,generator,G 07,ElmSym,5,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+150,N-2,line+line,Double outage: Line 26 - 27 + Line 04 - 05,critical,2,line,Line 26 - 27,ElmLne,11,0.0,line,Line 04 - 05,ElmLne,21,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+151,N-2,transformer+generator,Mixed outage: Trf 20 - 34 + G 10,critical,2,transformer,Trf 20 - 34,ElmTr2,2,0.0,generator,G 10,ElmSym,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+152,N-2,line+line,Double outage: Line 06 - 11 + Line 13 - 14,critical,2,line,Line 06 - 11,ElmLne,18,0.0,line,Line 13 - 14,ElmLne,26,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+153,N-2,line+line,Double outage: Line 03 - 18 + Line 02 - 25,critical,2,line,Line 03 - 18,ElmLne,2,0.0,line,Line 02 - 25,ElmLne,28,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+154,N-2,line+transformer,Double outage: Line 26 - 27 + Trf 11 - 12,critical,2,line,Line 26 - 27,ElmLne,11,0.0,transformer,Trf 11 - 12,ElmTr2,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+155,N-2,line+transformer,Double outage: Line 16 - 21 + Trf 19 - 20,critical,2,line,Line 16 - 21,ElmLne,17,0.0,transformer,Trf 19 - 20,ElmTr2,1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+156,N-2,line+transformer,Double outage: Line 15 - 16 + Trf 06 - 31,critical,2,line,Line 15 - 16,ElmLne,24,0.0,transformer,Trf 06 - 31,ElmTr2,8,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+157,N-2,line+line,Double outage: Line 06 - 07 + Line 15 - 16,critical,2,line,Line 06 - 07,ElmLne,14,0.0,line,Line 15 - 16,ElmLne,24,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+158,N-2,line+line,Double outage: Line 09 - 39 + Line 21 - 22,critical,2,line,Line 09 - 39,ElmLne,3,0.0,line,Line 21 - 22,ElmLne,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+159,N-2,line+transformer,Double outage: Line 22 - 23 + Trf 10 - 32,critical,2,line,Line 22 - 23,ElmLne,10,0.0,transformer,Trf 10 - 32,ElmTr2,4,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+160,N-2,line+generator,Mixed outage: Line 01 - 39 + G 08,critical,2,line,Line 01 - 39,ElmLne,12,0.0,generator,G 08,ElmSym,6,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+161,N-2,transformer+generator,Mixed outage: Trf 22 - 35 + G 07,critical,2,transformer,Trf 22 - 35,ElmTr2,9,0.0,generator,G 07,ElmSym,5,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+162,N-2,line+line,Double outage: Line 16 - 21 + Line 17 - 27,critical,2,line,Line 16 - 21,ElmLne,17,0.0,line,Line 17 - 27,ElmLne,33,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+163,N-2,line+transformer,Double outage: Line 22 - 23 + Trf 11 - 12,critical,2,line,Line 22 - 23,ElmLne,10,0.0,transformer,Trf 11 - 12,ElmTr2,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+164,N-2,line+generator,Mixed outage: Line 16 - 17 + G 10,critical,2,line,Line 16 - 17,ElmLne,30,0.0,generator,G 10,ElmSym,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+165,N-2,transformer+transformer,Double outage: Trf 02 - 30 + Trf 22 - 35,critical,2,transformer,Trf 02 - 30,ElmTr2,6,0.0,transformer,Trf 22 - 35,ElmTr2,9,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+166,N-2,line+line,Double outage: Line 15 - 16 + Line 28 - 29,critical,2,line,Line 15 - 16,ElmLne,24,0.0,line,Line 28 - 29,ElmLne,31,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+167,N-2,line+generator,Mixed outage: Line 02 - 25 + G 02,critical,2,line,Line 02 - 25,ElmLne,28,0.0,generator,G 02,ElmSym,1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+168,N-2,line+transformer,Double outage: Line 28 - 29 + Trf 11 - 12,critical,2,line,Line 28 - 29,ElmLne,31,0.0,transformer,Trf 11 - 12,ElmTr2,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+169,N-2,line+transformer,Double outage: Line 03 - 04 + Trf 13 - 12,critical,2,line,Line 03 - 04,ElmLne,6,0.0,transformer,Trf 13 - 12,ElmTr2,10,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+170,N-2,line+line,Double outage: Line 06 - 07 + Line 06 - 11,critical,2,line,Line 06 - 07,ElmLne,14,0.0,line,Line 06 - 11,ElmLne,18,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+171,N-2,line+transformer,Double outage: Line 01 - 39 + Trf 13 - 12,critical,2,line,Line 01 - 39,ElmLne,12,0.0,transformer,Trf 13 - 12,ElmTr2,10,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+172,N-2,line+generator,Mixed outage: Line 03 - 04 + G 05,critical,2,line,Line 03 - 04,ElmLne,6,0.0,generator,G 05,ElmSym,8,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+173,N-2,line+transformer,Double outage: Line 10 - 13 + Trf 29 - 38,critical,2,line,Line 10 - 13,ElmLne,13,0.0,transformer,Trf 29 - 38,ElmTr2,11,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+174,N-2,line+generator,Mixed outage: Line 16 - 24 + G 03,critical,2,line,Line 16 - 24,ElmLne,16,0.0,generator,G 03,ElmSym,2,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+175,N-2,line+transformer,Double outage: Line 01 - 02 + Trf 11 - 12,critical,2,line,Line 01 - 02,ElmLne,27,0.0,transformer,Trf 11 - 12,ElmTr2,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+176,N-2,line+generator,Mixed outage: Line 16 - 24 + G 01,critical,2,line,Line 16 - 24,ElmLne,16,0.0,generator,G 01,ElmSym,0,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+177,N-2,line+transformer,Double outage: Line 15 - 16 + Trf 10 - 32,critical,2,line,Line 15 - 16,ElmLne,24,0.0,transformer,Trf 10 - 32,ElmTr2,4,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+178,N-2,line+line,Double outage: Line 04 - 05 + Line 02 - 25,critical,2,line,Line 04 - 05,ElmLne,21,0.0,line,Line 02 - 25,ElmLne,28,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+179,N-2,line+transformer,Double outage: Line 03 - 04 + Trf 19 - 20,critical,2,line,Line 03 - 04,ElmLne,6,0.0,transformer,Trf 19 - 20,ElmTr2,1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+180,N-2,line+generator,Mixed outage: Line 16 - 19 + G 05,critical,2,line,Line 16 - 19,ElmLne,0,0.0,generator,G 05,ElmSym,8,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+181,N-2,transformer+transformer,Double outage: Trf 10 - 32 + Trf 06 - 31,critical,2,transformer,Trf 10 - 32,ElmTr2,4,0.0,transformer,Trf 06 - 31,ElmTr2,8,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+182,N-2,line+line,Double outage: Line 07 - 08 + Line 16 - 21,critical,2,line,Line 07 - 08,ElmLne,4,0.0,line,Line 16 - 21,ElmLne,17,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+183,N-2,line+line,Double outage: Line 03 - 18 + Line 22 - 23,critical,2,line,Line 03 - 18,ElmLne,2,0.0,line,Line 22 - 23,ElmLne,10,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+184,N-2,line+line,Double outage: Line 26 - 28 + Line 10 - 11,critical,2,line,Line 26 - 28,ElmLne,5,0.0,line,Line 10 - 11,ElmLne,15,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+185,N-2,line+line,Double outage: Line 21 - 22 + Line 01 - 02,critical,2,line,Line 21 - 22,ElmLne,7,0.0,line,Line 01 - 02,ElmLne,27,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+186,N-2,line+generator,Mixed outage: Line 08 - 09 + G 01,critical,2,line,Line 08 - 09,ElmLne,25,0.0,generator,G 01,ElmSym,0,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+187,N-2,line+transformer,Double outage: Line 21 - 22 + Trf 11 - 12,critical,2,line,Line 21 - 22,ElmLne,7,0.0,transformer,Trf 11 - 12,ElmTr2,7,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+188,N-2,transformer+generator,Mixed outage: Trf 19 - 20 + G 05,critical,2,transformer,Trf 19 - 20,ElmTr2,1,0.0,generator,G 05,ElmSym,8,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+189,N-2,line+generator,Mixed outage: Line 06 - 11 + G 08,critical,2,line,Line 06 - 11,ElmLne,18,0.0,generator,G 08,ElmSym,6,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+190,N-2,line+transformer,Double outage: Line 03 - 18 + Trf 13 - 12,critical,2,line,Line 03 - 18,ElmLne,2,0.0,transformer,Trf 13 - 12,ElmTr2,10,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+191,N-2,line+line,Double outage: Line 26 - 29 + Line 16 - 17,critical,2,line,Line 26 - 29,ElmLne,23,0.0,line,Line 16 - 17,ElmLne,30,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+192,N-2,line+transformer,Double outage: Line 02 - 03 + Trf 29 - 38,critical,2,line,Line 02 - 03,ElmLne,22,0.0,transformer,Trf 29 - 38,ElmTr2,11,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+193,N-2,line+generator,Mixed outage: Line 06 - 11 + G 07,critical,2,line,Line 06 - 11,ElmLne,18,0.0,generator,G 07,ElmSym,5,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+194,N-2,line+transformer,Double outage: Line 17 - 27 + Trf 19 - 20,critical,2,line,Line 17 - 27,ElmLne,33,0.0,transformer,Trf 19 - 20,ElmTr2,1,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+195,N-2,line+generator,Mixed outage: Line 07 - 08 + G 05,critical,2,line,Line 07 - 08,ElmLne,4,0.0,generator,G 05,ElmSym,8,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency
+196,N-2,line+line,Double outage: Line 10 - 13 + Line 04 - 05,critical,2,line,Line 10 - 13,ElmLne,13,0.0,line,Line 04 - 05,ElmLne,21,0.0,2025-08-03T11:40:18.523147,Auto-generated N-2 contingency

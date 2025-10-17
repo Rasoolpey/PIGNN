@@ -1,0 +1,713 @@
+"""
+Three-phase load flow solver using Newton-Raphson method.
+Works with the physics-informed graph structure.
+"""
+
+import numpy as np
+import scipy.sparse as sp
+from typing import Dict, List, Tuple, Optional, Any
+from dataclasses import dataclass
+from enum import Enum
+import warnings
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from core.graph_base import PowerGridGraph, PhaseType
+from physics.impedance_matrix import AdmittanceMatrixBuilder
+
+
+class BusType(Enum):
+    """Bus types for load flow analysis"""
+    PQ = 'PQ'      # Load bus - P and Q specified
+    PV = 'PV'      # Generator bus - P and V specified
+    SLACK = 'SLACK'  # Slack bus - V and angle specified
+
+
+@dataclass
+class LoadFlowResults:
+    """Results from load flow analysis"""
+    converged: bool
+    iterations: int
+    max_mismatch: float
+    
+    # Solution vectors (3N x 1 for three-phase)
+    voltages: np.ndarray  # Complex voltages
+    voltage_magnitudes: np.ndarray  # |V|
+    voltage_angles: np.ndarray  # ∠V in radians
+    
+    # Power injections
+    active_power: np.ndarray  # P in MW
+    reactive_power: np.ndarray  # Q in MVAR
+    
+    # System losses
+    total_losses_mw: float
+    total_losses_mvar: float
+    
+    # Node mapping
+    node_mapping: Dict[str, int]
+    
+    def get_bus_results(self, bus_id: str) -> Dict[str, Dict[str, float]]:
+        """Get results for a specific bus (all three phases)"""
+        results = {}
+        
+        for phase in PhaseType:
+            node_id = f"{bus_id}_{phase.value}"
+            if node_id in self.node_mapping:
+                idx = self.node_mapping[node_id]
+                results[phase.value] = {
+                    'voltage_pu': abs(self.voltages[idx]),
+                    'angle_deg': np.degrees(np.angle(self.voltages[idx])),
+                    'voltage_real': self.voltages[idx].real,
+                    'voltage_imag': self.voltages[idx].imag,
+                    'active_power_mw': self.active_power[idx],
+                    'reactive_power_mvar': self.reactive_power[idx]
+                }
+        
+        return results
+
+
+class ThreePhaseLoadFlowSolver:
+    """
+    Newton-Raphson load flow solver for three-phase unbalanced systems.
+    Handles the full 3N x 3N admittance matrix with inter-phase coupling.
+    """
+    
+    def __init__(self, 
+                 graph: PowerGridGraph,
+                 tolerance: float = 1e-6,
+                 max_iterations: int = 50,
+                 acceleration_factor: float = 1.0):
+        """
+        Initialize the load flow solver.
+        
+        Args:
+            graph: PowerGridGraph object
+            tolerance: Convergence tolerance for power mismatches
+            max_iterations: Maximum number of iterations
+            acceleration_factor: Newton step acceleration (1.0 = normal)
+        """
+        self.graph = graph
+        self.tolerance = tolerance
+        self.max_iterations = max_iterations
+        self.acceleration_factor = acceleration_factor
+        
+        # Build admittance matrix
+        self.y_builder = AdmittanceMatrixBuilder(graph)
+        self.Y_matrix = None
+        
+        # Bus classification
+        self.bus_types = {}
+        self.pq_buses = []
+        self.pv_buses = []
+        self.slack_buses = []
+        
+        # Adaptive control parameters
+        self.min_acceleration = 0.1
+        self.max_acceleration = 1.0
+        self.divergence_count = 0
+        
+        # Initialize
+        self._setup_system()
+    
+    def _setup_system(self):
+        """Setup the system matrices and bus classifications"""
+        # Build Y-matrix
+        self.Y_matrix = self.y_builder.build_y_matrix(use_sparse=False)
+        
+        # Classify buses based on node types
+        self._classify_buses()
+        
+        # Validate system setup
+        self._validate_system()
+    
+    def _classify_buses(self):
+        """Classify buses based on their control modes"""
+        for node_id, phase_nodes in self.graph.nodes.items():
+            # Get the first phase to determine bus type
+            phase_a_node = phase_nodes[PhaseType.A]
+            
+            if hasattr(phase_a_node, 'control_mode'):
+                if phase_a_node.control_mode == 'slack':
+                    self.bus_types[node_id] = BusType.SLACK
+                    self.slack_buses.append(node_id)
+                elif phase_a_node.control_mode == 'PV':
+                    self.bus_types[node_id] = BusType.PV
+                    self.pv_buses.append(node_id)
+                else:
+                    self.bus_types[node_id] = BusType.PQ
+                    self.pq_buses.append(node_id)
+            else:
+                # Default classification based on node type
+                if phase_a_node.node_type == 'generator':
+                    # Check if it has voltage control
+                    if hasattr(phase_a_node, 'voltage_setpoint_pu'):
+                        self.bus_types[node_id] = BusType.PV
+                        self.pv_buses.append(node_id)
+                    else:
+                        self.bus_types[node_id] = BusType.PQ
+                        self.pq_buses.append(node_id)
+                elif phase_a_node.node_type == 'bus':
+                    # Check if it's marked as slack
+                    if phase_a_node.properties.get('is_slack', False):
+                        self.bus_types[node_id] = BusType.SLACK
+                        self.slack_buses.append(node_id)
+                    else:
+                        self.bus_types[node_id] = BusType.PQ
+                        self.pq_buses.append(node_id)
+                else:
+                    self.bus_types[node_id] = BusType.PQ
+                    self.pq_buses.append(node_id)
+    
+    def _validate_system(self):
+        """Validate the system setup"""
+        if len(self.slack_buses) == 0:
+            # Automatically assign the first bus as slack
+            if self.graph.nodes:
+                first_bus = list(self.graph.nodes.keys())[0]
+                self.bus_types[first_bus] = BusType.SLACK
+                self.slack_buses.append(first_bus)
+                if first_bus in self.pq_buses:
+                    self.pq_buses.remove(first_bus)
+                if first_bus in self.pv_buses:
+                    self.pv_buses.remove(first_bus)
+                warnings.warn(f"No slack bus found. Assigned bus '{first_bus}' as slack.")
+        
+        if len(self.slack_buses) > 1:
+            warnings.warn(f"Multiple slack buses found: {self.slack_buses}. Using first one.")
+            # Keep only the first slack bus
+            for bus in self.slack_buses[1:]:
+                self.bus_types[bus] = BusType.PQ
+                self.pq_buses.append(bus)
+            self.slack_buses = self.slack_buses[:1]
+    
+    def solve(self, verbose: bool = True) -> LoadFlowResults:
+        """
+        Solve the three-phase load flow problem.
+        
+        Args:
+            verbose: Print iteration information
+        
+        Returns:
+            LoadFlowResults object
+        """
+        if verbose:
+            print("🔧 Starting Three-Phase Load Flow Analysis")
+            print(f"   • Total buses: {len(self.graph.nodes)}")
+            print(f"   • PQ buses: {len(self.pq_buses)}")
+            print(f"   • PV buses: {len(self.pv_buses)}")
+            print(f"   • Slack buses: {len(self.slack_buses)}")
+            print(f"   • System size: {self.Y_matrix.shape[0]} nodes")
+        
+        # Initialize state vector
+        V = self._initialize_voltages()
+        
+        # Newton-Raphson iterations
+        converged = False
+        iteration = 0
+        max_mismatch = float('inf')
+        previous_mismatch = float('inf')
+        
+        if verbose:
+            print("\n📊 Iteration Progress:")
+            print("   Iter |  Max ΔP (MW) |  Max ΔQ (MVAR) |  Max Mismatch | Accel Factor")
+            print("   -----|---------------|-----------------|---------------|-------------")
+        
+        for iteration in range(self.max_iterations):
+            # Calculate power mismatches
+            P_calc, Q_calc = self._calculate_power_injections(V)
+            P_spec, Q_spec = self._get_specified_powers()
+            
+            # Calculate mismatches
+            delta_P, delta_Q = self._calculate_mismatches(P_calc, Q_calc, P_spec, Q_spec)
+            
+            # Check convergence
+            max_mismatch = max(np.max(np.abs(delta_P)), np.max(np.abs(delta_Q)))
+            
+            # Adaptive acceleration control
+            if iteration > 0:
+                if max_mismatch > previous_mismatch:
+                    # Diverging - reduce acceleration
+                    self.divergence_count += 1
+                    self.acceleration_factor = max(self.min_acceleration, 
+                                                 self.acceleration_factor * 0.7)
+                else:
+                    # Converging - can increase acceleration slightly
+                    self.divergence_count = 0
+                    self.acceleration_factor = min(self.max_acceleration,
+                                                 self.acceleration_factor * 1.05)
+            
+            if verbose:
+                max_delta_p = np.max(np.abs(delta_P)) * self.graph.base_mva
+                max_delta_q = np.max(np.abs(delta_Q)) * self.graph.base_mva
+                print(f"   {iteration:4d} | {max_delta_p:12.6f} | {max_delta_q:14.6f} | "
+                      f"{max_mismatch:12.6f} | {self.acceleration_factor:10.3f}")
+            
+            if max_mismatch < self.tolerance:
+                converged = True
+                break
+            
+            # Break if diverging badly
+            if self.divergence_count > 5:
+                if verbose:
+                    print("   ❌ Excessive divergence detected - stopping")
+                break
+            
+            # Build Jacobian matrix
+            J = self._build_jacobian(V)
+            
+            # Prepare mismatch vector
+            mismatch = self._prepare_mismatch_vector(delta_P, delta_Q)
+            
+            # Solve for corrections
+            try:
+                delta_x = np.linalg.solve(J, mismatch)
+            except np.linalg.LinAlgError:
+                if verbose:
+                    print("   ❌ Jacobian matrix is singular!")
+                break
+            
+            # Update voltages
+            previous_mismatch = max_mismatch
+            V = self._update_voltages(V, delta_x)
+        
+        # Calculate final power injections
+        P_final, Q_final = self._calculate_power_injections(V)
+        
+        # Calculate losses
+        total_losses_mw, total_losses_mvar = self._calculate_losses(V)
+        
+        if verbose:
+            if converged:
+                print(f"   ✅ Converged in {iteration + 1} iterations")
+            else:
+                print(f"   ❌ Failed to converge after {self.max_iterations} iterations")
+            print(f"   📈 Total system losses: {total_losses_mw:.3f} MW, {total_losses_mvar:.3f} MVAR")
+        
+        # Create results object
+        results = LoadFlowResults(
+            converged=converged,
+            iterations=iteration + 1,
+            max_mismatch=max_mismatch,
+            voltages=V.copy(),
+            voltage_magnitudes=np.abs(V),
+            voltage_angles=np.angle(V),
+            active_power=P_final * self.graph.base_mva,  # Convert to MW
+            reactive_power=Q_final * self.graph.base_mva,  # Convert to MVAR
+            total_losses_mw=total_losses_mw,
+            total_losses_mvar=total_losses_mvar,
+            node_mapping=self.y_builder.node_to_index.copy()
+        )
+        
+        return results
+    
+    def _initialize_voltages(self) -> np.ndarray:
+        """Initialize voltage vector"""
+        n_nodes = len(self.y_builder.node_to_index)
+        V = np.ones(n_nodes, dtype=complex)
+        
+        # Set initial voltages from graph data
+        for node_id, phase_nodes in self.graph.nodes.items():
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    node = phase_nodes[phase]
+                    V[idx] = node.voltage_pu
+        
+        return V
+    
+    def _calculate_power_injections(self, V: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """Calculate power injections at all nodes using proper three-phase formulation"""
+        n = len(V)
+        P = np.zeros(n)
+        Q = np.zeros(n)
+        
+        # Extract Y matrix components
+        G = self.Y_matrix.real
+        B = self.Y_matrix.imag
+        
+        # Extract voltage magnitudes and angles
+        V_mag = np.abs(V)
+        theta = np.angle(V)
+        
+        # Calculate power injections: P_i + jQ_i = V_i * conj(I_i) = V_i * conj(sum(Y_ij * V_j))
+        for i in range(n):
+            if V_mag[i] < 1e-10:  # Avoid division by zero
+                continue
+                
+            P_sum = 0.0
+            Q_sum = 0.0
+            
+            for j in range(n):
+                if V_mag[j] < 1e-10:
+                    continue
+                    
+                # Angle difference
+                theta_ij = theta[i] - theta[j]
+                
+                # Power contributions
+                P_sum += V_mag[j] * (G[i, j] * np.cos(theta_ij) + B[i, j] * np.sin(theta_ij))
+                Q_sum += V_mag[j] * (G[i, j] * np.sin(theta_ij) - B[i, j] * np.cos(theta_ij))
+            
+            P[i] = V_mag[i] * P_sum
+            Q[i] = V_mag[i] * Q_sum
+        
+        return P, Q
+    
+    def _get_specified_powers(self) -> Tuple[np.ndarray, np.ndarray]:
+        """Get specified power injections"""
+        n_nodes = len(self.y_builder.node_to_index)
+        P_spec = np.zeros(n_nodes)
+        Q_spec = np.zeros(n_nodes)
+        
+        for node_id, phase_nodes in self.graph.nodes.items():
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    node = phase_nodes[phase]
+                    
+                    # Get power injection from node properties
+                    P_spec[idx] = node.properties.get('P_injection_pu', 0.0)
+                    Q_spec[idx] = node.properties.get('Q_injection_pu', 0.0)
+        
+        return P_spec, Q_spec
+    
+    def _calculate_mismatches(self, P_calc: np.ndarray, Q_calc: np.ndarray, 
+                            P_spec: np.ndarray, Q_spec: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """Calculate power mismatches"""
+        # Only calculate mismatches for PQ and PV buses
+        n_nodes = len(self.y_builder.node_to_index)
+        delta_P = np.zeros(n_nodes)
+        delta_Q = np.zeros(n_nodes)
+        
+        for node_id in self.pq_buses + self.pv_buses:
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    delta_P[idx] = P_spec[idx] - P_calc[idx]
+        
+        # Q mismatches only for PQ buses
+        for node_id in self.pq_buses:
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    delta_Q[idx] = Q_spec[idx] - Q_calc[idx]
+        
+        return delta_P, delta_Q
+    
+    def _build_jacobian(self, V: np.ndarray) -> np.ndarray:
+        """Build proper Newton-Raphson Jacobian matrix for three-phase system"""
+        n = len(V)
+        
+        # Extract voltage magnitudes and angles
+        V_mag = np.abs(V)
+        theta = np.angle(V)
+        
+        # Extract Y matrix components
+        G = self.Y_matrix.real
+        B = self.Y_matrix.imag
+        
+        # Identify variable indices (exclude slack buses)
+        pq_indices = []  # PQ buses: theta and V are variables
+        pv_indices = []  # PV buses: only theta is variable
+        
+        for node_id in self.pq_buses:
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    pq_indices.append(idx)
+        
+        for node_id in self.pv_buses:
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    pv_indices.append(idx)
+        
+        # Total equations: P equations for PQ+PV buses, Q equations for PQ buses only
+        n_p_equations = len(pq_indices) + len(pv_indices)
+        n_q_equations = len(pq_indices)
+        n_equations = n_p_equations + n_q_equations
+        
+        # Total variables: theta for PQ+PV buses, V for PQ buses only  
+        n_theta_vars = len(pq_indices) + len(pv_indices)
+        n_v_vars = len(pq_indices)
+        n_variables = n_theta_vars + n_v_vars
+        
+        if n_equations == 0 or n_variables == 0:
+            return np.eye(1)
+        
+        # Initialize Jacobian
+        J = np.zeros((n_equations, n_variables))
+        
+        # Variable mapping
+        all_variable_indices = pq_indices + pv_indices  # For theta variables
+        
+        # Fill Jacobian submatrices
+        # J = [∂P/∂θ   ∂P/∂V]
+        #     [∂Q/∂θ   ∂Q/∂V]
+        
+        # ===== ∂P/∂θ block (upper left) =====
+        for eq_idx, i in enumerate(all_variable_indices):
+            if eq_idx >= n_p_equations:
+                break
+                
+            for var_idx, j in enumerate(all_variable_indices):
+                if var_idx >= n_theta_vars:
+                    break
+                    
+                if i == j:
+                    # Diagonal element ∂P_i/∂θ_i
+                    sum_term = 0.0
+                    for k in range(n):
+                        if k != i and V_mag[k] > 1e-10:
+                            theta_ik = theta[i] - theta[k]
+                            sum_term += V_mag[k] * (G[i,k] * np.sin(theta_ik) - B[i,k] * np.cos(theta_ik))
+                    J[eq_idx, var_idx] = -V_mag[i] * sum_term
+                else:
+                    # Off-diagonal element ∂P_i/∂θ_j
+                    if V_mag[i] > 1e-10 and V_mag[j] > 1e-10:
+                        theta_ij = theta[i] - theta[j]
+                        J[eq_idx, var_idx] = V_mag[i] * V_mag[j] * (G[i,j] * np.sin(theta_ij) - B[i,j] * np.cos(theta_ij))
+        
+        # ===== ∂P/∂V block (upper right) =====
+        for eq_idx, i in enumerate(all_variable_indices):
+            if eq_idx >= n_p_equations:
+                break
+                
+            for var_idx, j in enumerate(pq_indices):  # Only PQ buses have V as variable
+                j_idx = pq_indices[var_idx]
+                global_var_idx = n_theta_vars + var_idx
+                
+                if global_var_idx >= n_variables:
+                    break
+                    
+                if i == j_idx:
+                    # Diagonal element ∂P_i/∂V_i
+                    sum_term = 0.0
+                    for k in range(n):
+                        if V_mag[k] > 1e-10:
+                            theta_ik = theta[i] - theta[k]
+                            sum_term += V_mag[k] * (G[i,k] * np.cos(theta_ik) + B[i,k] * np.sin(theta_ik))
+                    J[eq_idx, global_var_idx] = sum_term
+                else:
+                    # Off-diagonal element ∂P_i/∂V_j
+                    if V_mag[i] > 1e-10 and V_mag[j_idx] > 1e-10:
+                        theta_ij = theta[i] - theta[j_idx]
+                        J[eq_idx, global_var_idx] = V_mag[i] * (G[i,j_idx] * np.cos(theta_ij) + B[i,j_idx] * np.sin(theta_ij))
+        
+        # ===== ∂Q/∂θ block (lower left) =====
+        for eq_idx, i in enumerate(pq_indices):  # Only PQ buses have Q equations
+            global_eq_idx = n_p_equations + eq_idx
+            
+            if global_eq_idx >= n_equations:
+                break
+                
+            for var_idx, j in enumerate(all_variable_indices):
+                if var_idx >= n_theta_vars:
+                    break
+                    
+                if i == j:
+                    # Diagonal element ∂Q_i/∂θ_i
+                    sum_term = 0.0
+                    for k in range(n):
+                        if k != i and V_mag[k] > 1e-10:
+                            theta_ik = theta[i] - theta[k]
+                            sum_term += V_mag[k] * (G[i,k] * np.cos(theta_ik) + B[i,k] * np.sin(theta_ik))
+                    J[global_eq_idx, var_idx] = V_mag[i] * sum_term
+                else:
+                    # Off-diagonal element ∂Q_i/∂θ_j
+                    if V_mag[i] > 1e-10 and V_mag[j] > 1e-10:
+                        theta_ij = theta[i] - theta[j]
+                        J[global_eq_idx, var_idx] = -V_mag[i] * V_mag[j] * (G[i,j] * np.cos(theta_ij) + B[i,j] * np.sin(theta_ij))
+        
+        # ===== ∂Q/∂V block (lower right) =====
+        for eq_idx, i in enumerate(pq_indices):  # Only PQ buses have Q equations
+            global_eq_idx = n_p_equations + eq_idx
+            
+            if global_eq_idx >= n_equations:
+                break
+                
+            for var_idx, j in enumerate(pq_indices):  # Only PQ buses have V as variable
+                j_idx = pq_indices[var_idx]
+                global_var_idx = n_theta_vars + var_idx
+                
+                if global_var_idx >= n_variables:
+                    break
+                    
+                if i == j_idx:
+                    # Diagonal element ∂Q_i/∂V_i
+                    sum_term = 0.0
+                    for k in range(n):
+                        if V_mag[k] > 1e-10:
+                            theta_ik = theta[i] - theta[k]
+                            sum_term += V_mag[k] * (G[i,k] * np.sin(theta_ik) - B[i,k] * np.cos(theta_ik))
+                    J[global_eq_idx, global_var_idx] = sum_term
+                else:
+                    # Off-diagonal element ∂Q_i/∂V_j
+                    if V_mag[i] > 1e-10 and V_mag[j_idx] > 1e-10:
+                        theta_ij = theta[i] - theta[j_idx]
+                        J[global_eq_idx, global_var_idx] = V_mag[i] * (G[i,j_idx] * np.sin(theta_ij) - B[i,j_idx] * np.cos(theta_ij))
+        
+        # Add regularization for numerical stability
+        regularization = 1e-12
+        for i in range(min(n_equations, n_variables)):
+            if abs(J[i, i]) < regularization:
+                J[i, i] += regularization
+        
+        return J
+    
+    def _prepare_mismatch_vector(self, delta_P: np.ndarray, delta_Q: np.ndarray) -> np.ndarray:
+        """Prepare mismatch vector for Jacobian solution - must match Jacobian structure"""
+        mismatches = []
+        
+        # Get indices for PQ and PV buses
+        pq_indices = []
+        pv_indices = []
+        
+        for node_id in self.pq_buses:
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    pq_indices.append(idx)
+        
+        for node_id in self.pv_buses:
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    pv_indices.append(idx)
+        
+        all_variable_indices = pq_indices + pv_indices
+        
+        # Add P mismatches for all PQ and PV buses (first block)
+        for idx in all_variable_indices:
+            if idx < len(delta_P):
+                mismatches.append(delta_P[idx])
+        
+        # Add Q mismatches for PQ buses only (second block)
+        for idx in pq_indices:
+            if idx < len(delta_Q):
+                mismatches.append(delta_Q[idx])
+        
+        return np.array(mismatches) if mismatches else np.array([0.0])
+    
+    def _update_voltages(self, V: np.ndarray, delta_x: np.ndarray) -> np.ndarray:
+        """Update voltage vector with Newton-Raphson corrections"""
+        V_new = V.copy()
+        
+        if len(delta_x) == 0:
+            return V_new
+        
+        # Get indices for PQ and PV buses
+        pq_indices = []
+        pv_indices = []
+        
+        for node_id in self.pq_buses:
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    pq_indices.append(idx)
+        
+        for node_id in self.pv_buses:
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    pv_indices.append(idx)
+        
+        all_variable_indices = pq_indices + pv_indices
+        n_theta_vars = len(all_variable_indices)
+        n_v_vars = len(pq_indices)
+        
+        # Apply angle corrections (first part of delta_x)
+        if len(delta_x) >= n_theta_vars:
+            delta_theta = delta_x[:n_theta_vars]
+            
+            for i, idx in enumerate(all_variable_indices):
+                if i < len(delta_theta) and idx < len(V_new):
+                    # Apply angle correction with acceleration factor
+                    current_mag = abs(V_new[idx])
+                    current_angle = np.angle(V_new[idx])
+                    new_angle = current_angle + self.acceleration_factor * delta_theta[i]
+                    V_new[idx] = current_mag * np.exp(1j * new_angle)
+        
+        # Apply voltage magnitude corrections (second part of delta_x, only for PQ buses)
+        if len(delta_x) >= n_theta_vars + n_v_vars:
+            delta_v = delta_x[n_theta_vars:n_theta_vars + n_v_vars]
+            
+            for i, idx in enumerate(pq_indices):
+                if i < len(delta_v) and idx < len(V_new):
+                    # Apply voltage magnitude correction
+                    current_mag = abs(V_new[idx])
+                    current_angle = np.angle(V_new[idx])
+                    new_mag = current_mag + self.acceleration_factor * delta_v[i]
+                    
+                    # Apply voltage limits for stability
+                    new_mag = max(0.5, min(1.5, new_mag))  # Keep between 0.5 and 1.5 pu
+                    V_new[idx] = new_mag * np.exp(1j * current_angle)
+        
+        # Maintain PV bus voltage magnitudes
+        for node_id in self.pv_buses:
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    if idx < len(V_new):
+                        # Get specified voltage magnitude
+                        node = self.graph.nodes[node_id][phase]
+                        V_setpoint = getattr(node, 'voltage_setpoint_pu', abs(node.voltage_pu))
+                        
+                        # Keep magnitude fixed, only angle can change
+                        current_angle = np.angle(V_new[idx])
+                        V_new[idx] = V_setpoint * np.exp(1j * current_angle)
+        
+        # Maintain slack bus voltages (both magnitude and angle)
+        for node_id in self.slack_buses:
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    if idx < len(V_new):
+                        # Keep slack bus voltage fixed
+                        node = self.graph.nodes[node_id][phase]
+                        V_new[idx] = node.voltage_pu
+        
+        return V_new
+    
+    def _calculate_losses(self, V: np.ndarray) -> Tuple[float, float]:
+        """Calculate total system losses"""
+        I = self.Y_matrix @ V
+        S_loss = np.sum(V * np.conj(I)).real  # Only real part for losses
+        
+        # Convert to MW/MVAR
+        P_loss_mw = S_loss * self.graph.base_mva
+        Q_loss_mvar = 0.0  # Simplified - reactive losses from line charging, etc.
+        
+        return P_loss_mw, Q_loss_mvar
+    
+    def print_system_summary(self):
+        """Print summary of the system setup"""
+        print("📋 Three-Phase Load Flow System Summary")
+        print("=" * 50)
+        print(f"Base MVA: {self.graph.base_mva}")
+        print(f"Frequency: {self.graph.frequency_hz} Hz")
+        print(f"Total nodes: {len(self.y_builder.node_to_index)}")
+        print(f"Total buses: {len(self.graph.nodes)}")
+        print(f"Total edges: {len(self.graph.edges)}")
+        print(f"Y-matrix size: {self.Y_matrix.shape}")
+        print(f"Y-matrix sparsity: {np.count_nonzero(self.Y_matrix) / self.Y_matrix.size * 100:.1f}%")
+        print()
+        print("Bus Classification:")
+        print(f"  • PQ buses: {len(self.pq_buses)} - {self.pq_buses}")
+        print(f"  • PV buses: {len(self.pv_buses)} - {self.pv_buses}")
+        print(f"  • Slack buses: {len(self.slack_buses)} - {self.slack_buses}")

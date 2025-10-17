@@ -1,0 +1,489 @@
+Structure of HDF5 file: scenario_0.h5
+============================================================
+ðŸ“ Group: analysis_modules
+  ðŸ“„ Dataset: data_collection | Shape: () | Dtype: object
+  ðŸ“„ Dataset: sensitivity_analysis | Shape: () | Dtype: object
+  ðŸ“„ Dataset: voltage_sensitivity | Shape: () | Dtype: object
+  ðŸ“„ Dataset: y_matrix_building | Shape: () | Dtype: object
+ðŸ“ Group: detailed_system_data
+  ðŸ“ Group: buses
+    ðŸ“„ Dataset: active_injection_MW | Shape: (39,) | Dtype: float64
+    ðŸ“„ Dataset: base_voltages_kV | Shape: (39,) | Dtype: float64
+    ðŸ“„ Dataset: in_service | Shape: (39,) | Dtype: bool
+    ðŸ“„ Dataset: names | Shape: (39,) | Dtype: object
+    ðŸ“„ Dataset: reactive_injection_MVAR | Shape: (39,) | Dtype: float64
+    ðŸ“„ Dataset: voltage_angles_deg | Shape: (39,) | Dtype: float64
+    ðŸ“„ Dataset: voltages_pu | Shape: (39,) | Dtype: float64
+  ðŸ“ Group: collection_statistics
+    ðŸ“„ Dataset: buses_collected | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: generators_collected | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: impedance_calculations_failed | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: impedance_calculations_successful | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: lines_collected | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: loads_collected | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: shunts_collected | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: total_elements | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: transformers_collected | Shape: () | Dtype: int64
+  ðŸ“„ Dataset: collection_time_seconds | Shape: () | Dtype: float64
+  ðŸ“„ Dataset: collection_timestamp | Shape: () | Dtype: object
+  ðŸ“„ Dataset: data_quality | Shape: () | Dtype: object
+  ðŸ“ Group: generators
+    ðŸ“„ Dataset: S_rated_MVA | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: V_rated_kV | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: active_power_MW | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: active_power_limits_MW | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: buses | Shape: (10,) | Dtype: object
+    ðŸ“„ Dataset: names | Shape: (10,) | Dtype: object
+    ðŸ“„ Dataset: reactive_limits_max_MVAR | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: reactive_limits_min_MVAR | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: reactive_power_MVAR | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: terminal_voltage_pu | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: voltage_setpoint_pu | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: xd_prime_pu | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: xd_pu | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: xq_pu | Shape: (10,) | Dtype: float64
+  ðŸ“ Group: lines
+    ðŸ“„ Dataset: B_uS | Shape: (34,) | Dtype: float64
+    ðŸ“„ Dataset: R_ohm | Shape: (34,) | Dtype: float64
+    ðŸ“„ Dataset: X_ohm | Shape: (34,) | Dtype: float64
+    ðŸ“„ Dataset: Z_magnitude | Shape: (34,) | Dtype: float64
+    ðŸ“„ Dataset: from_buses | Shape: (34,) | Dtype: object
+    ðŸ“„ Dataset: impedance_source | Shape: (34,) | Dtype: object
+    ðŸ“„ Dataset: names | Shape: (34,) | Dtype: object
+    ðŸ“„ Dataset: to_buses | Shape: (34,) | Dtype: object
+  ðŸ“ Group: loads
+    ðŸ“„ Dataset: R_equivalent_ohm | Shape: (19,) | Dtype: float64
+    ðŸ“„ Dataset: X_equivalent_ohm | Shape: (19,) | Dtype: float64
+    ðŸ“„ Dataset: Z_equivalent_ohm | Shape: (19,) | Dtype: float64
+    ðŸ“„ Dataset: active_power_MW | Shape: (19,) | Dtype: float64
+    ðŸ“„ Dataset: bus_voltage_pu | Shape: (19,) | Dtype: float64
+    ðŸ“„ Dataset: buses | Shape: (19,) | Dtype: object
+    ðŸ“„ Dataset: names | Shape: (19,) | Dtype: object
+    ðŸ“„ Dataset: reactive_power_MVAR | Shape: (19,) | Dtype: float64
+  ðŸ“ Group: shunts
+    ðŸ“„ Dataset: Q_MVAR | Shape: (2,) | Dtype: float64
+    ðŸ“„ Dataset: X_shunt_ohm | Shape: (2,) | Dtype: float64
+    ðŸ“„ Dataset: buses | Shape: (2,) | Dtype: object
+    ðŸ“„ Dataset: capacitive | Shape: (2,) | Dtype: bool
+    ðŸ“„ Dataset: names | Shape: (2,) | Dtype: object
+    ðŸ“„ Dataset: reactive_power_MVAR | Shape: (2,) | Dtype: float64
+  ðŸ“ Group: system_summary
+    ðŸ“„ Dataset: convergence_iterations | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: max_voltage_pu | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: min_voltage_pu | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: overloaded_elements_count | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: system_frequency_Hz | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: total_generation_MW | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: total_load_MW | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: total_losses_MW | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: total_reactive_generation_MVAR | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: total_reactive_load_MVAR | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: total_reactive_losses_MVAR | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: voltage_violations_count | Shape: () | Dtype: int64
+  ðŸ“ Group: transformers
+    ðŸ“„ Dataset: R_ohm | Shape: (12,) | Dtype: float64
+    ðŸ“„ Dataset: X_ohm | Shape: (12,) | Dtype: float64
+    ðŸ“„ Dataset: classes | Shape: (12,) | Dtype: object
+    ðŸ“„ Dataset: from_buses | Shape: (12,) | Dtype: object
+    ðŸ“„ Dataset: impedance_source | Shape: (12,) | Dtype: object
+    ðŸ“„ Dataset: names | Shape: (12,) | Dtype: object
+    ðŸ“„ Dataset: phase_shift_deg | Shape: (12,) | Dtype: float64
+    ðŸ“„ Dataset: tap_ratio | Shape: (12,) | Dtype: float64
+    ðŸ“„ Dataset: to_buses | Shape: (12,) | Dtype: object
+ðŸ“ Group: disconnection_actions
+  ðŸ“„ Dataset: actions | Shape: (1,) | Dtype: object
+  ðŸ“„ Dataset: num_actions | Shape: () | Dtype: int64
+ðŸ“ Group: load_flow_results
+  ðŸ“ Group: bus_data
+    ðŸ“„ Dataset: bus_angles_deg | Shape: (39,) | Dtype: float64
+    ðŸ“„ Dataset: bus_names | Shape: (39,) | Dtype: object
+    ðŸ“„ Dataset: bus_voltages_pu | Shape: (39,) | Dtype: float64
+    ðŸ“„ Dataset: num_buses | Shape: () | Dtype: int64
+  ðŸ“„ Dataset: convergence | Shape: () | Dtype: bool
+  ðŸ“„ Dataset: execution_time | Shape: () | Dtype: float64
+  ðŸ“„ Dataset: iterations | Shape: () | Dtype: int64
+  ðŸ“ Group: voltage_statistics
+    ðŸ“„ Dataset: avg_voltage_pu | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: islanded_buses_count | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: max_voltage_pu | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: min_voltage_pu | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: std_voltage_pu | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: voltage_violations_count | Shape: () | Dtype: int64
+ðŸ“ Group: power_flow_data
+  ðŸ“ Group: generation_data
+    ðŸ“„ Dataset: P_actual_MW | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: P_max_MW | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: P_min_MW | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: P_setpoint_MW | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: Q_actual_MVAR | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: Q_max_MVAR | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: Q_min_MVAR | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: Q_setpoint_MVAR | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: V_setpoint_pu | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: V_terminal_pu | Shape: (10,) | Dtype: float64
+    ðŸ“„ Dataset: generator_names | Shape: (10,) | Dtype: object
+    ðŸ“„ Dataset: num_generators | Shape: () | Dtype: int64
+  ðŸ“ Group: line_data
+    ðŸ“„ Dataset: P_from_MW | Shape: (34,) | Dtype: float64
+    ðŸ“„ Dataset: P_loss_MW | Shape: (34,) | Dtype: float64
+    ðŸ“„ Dataset: P_to_MW | Shape: (34,) | Dtype: float64
+    ðŸ“„ Dataset: Q_from_MVAR | Shape: (34,) | Dtype: float64
+    ðŸ“„ Dataset: Q_loss_MVAR | Shape: (34,) | Dtype: float64
+    ðŸ“„ Dataset: Q_to_MVAR | Shape: (34,) | Dtype: float64
+    ðŸ“„ Dataset: avg_loading_percent | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: current_A | Shape: (34,) | Dtype: float64
+    ðŸ“„ Dataset: line_names | Shape: (34,) | Dtype: object
+    ðŸ“„ Dataset: loading_percent | Shape: (34,) | Dtype: float64
+    ðŸ“„ Dataset: max_loading_percent | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: num_lines | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: overloaded_lines_count | Shape: () | Dtype: int64
+  ðŸ“ Group: load_data
+    ðŸ“„ Dataset: P_actual_MW | Shape: (19,) | Dtype: float64
+    ðŸ“„ Dataset: P_nominal_MW | Shape: (19,) | Dtype: float64
+    ðŸ“„ Dataset: Q_actual_MVAR | Shape: (19,) | Dtype: float64
+    ðŸ“„ Dataset: Q_nominal_MVAR | Shape: (19,) | Dtype: float64
+    ðŸ“„ Dataset: V_bus_pu | Shape: (19,) | Dtype: float64
+    ðŸ“„ Dataset: load_names | Shape: (19,) | Dtype: object
+    ðŸ“„ Dataset: load_type | Shape: (19,) | Dtype: int64
+    ðŸ“„ Dataset: num_loads | Shape: () | Dtype: int64
+  ðŸ“ Group: system_totals
+    ðŸ“„ Dataset: power_balance_MVAR | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: power_balance_MW | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: system_frequency_Hz | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: total_generation_MVAR | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: total_generation_MW | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: total_load_MVAR | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: total_load_MW | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: total_losses_MVAR | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: total_losses_MW | Shape: () | Dtype: float64
+  ðŸ“ Group: transformer_data
+    ðŸ“„ Dataset: P_hv_MW | Shape: (12,) | Dtype: float64
+    ðŸ“„ Dataset: P_loss_MW | Shape: (12,) | Dtype: float64
+    ðŸ“„ Dataset: P_lv_MW | Shape: (12,) | Dtype: float64
+    ðŸ“„ Dataset: Q_hv_MVAR | Shape: (12,) | Dtype: float64
+    ðŸ“„ Dataset: Q_loss_MVAR | Shape: (12,) | Dtype: float64
+    ðŸ“„ Dataset: Q_lv_MVAR | Shape: (12,) | Dtype: float64
+    ðŸ“„ Dataset: avg_loading_percent | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: loading_percent | Shape: (12,) | Dtype: float64
+    ðŸ“„ Dataset: max_loading_percent | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: num_transformers | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: overloaded_transformers_count | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: tap_position | Shape: (12,) | Dtype: int64
+    ðŸ“„ Dataset: transformer_names | Shape: (12,) | Dtype: object
+ðŸ“ Group: scenario_metadata
+  ðŸ“„ Dataset: contingency_type | Shape: () | Dtype: object
+  ðŸ“„ Dataset: description | Shape: () | Dtype: object
+  ðŸ“„ Dataset: execution_timestamp | Shape: () | Dtype: object
+  ðŸ“„ Dataset: num_elements_out | Shape: () | Dtype: int64
+  ðŸ“„ Dataset: project_name | Shape: () | Dtype: object
+  ðŸ“„ Dataset: scenario_id | Shape: () | Dtype: int64
+  ðŸ“„ Dataset: severity | Shape: () | Dtype: object
+  ðŸ“„ Dataset: study_case | Shape: () | Dtype: object
+ðŸ“ Group: voltage_sensitivity
+  ðŸ“„ Dataset: analysis_time_seconds | Shape: () | Dtype: float64
+  ðŸ“„ Dataset: analysis_timestamp | Shape: () | Dtype: object
+  ðŸ“ Group: generators
+    ðŸ“ Group: G_01
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: G_02
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (11,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (11,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: G_03
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (24,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (24,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: G_04
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (28,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (28,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: G_05
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: G_06
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (25,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (25,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: G_07
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (23,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (23,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: G_08
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (28,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (28,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: G_09
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: G_10
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (28,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (28,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: num_generators_analyzed | Shape: () | Dtype: int64
+  ðŸ“ Group: loads
+    ðŸ“ Group: Load_03
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_04
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_07
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (28,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (28,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_08
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (28,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (28,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_12
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (22,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (22,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_15
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_16
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_18
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_20
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (26,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (26,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_21
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (27,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (27,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_23
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (24,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (24,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_24
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_25
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_26
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_27
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_28
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_29
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“ Group: Q_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (29,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (29,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_31
+      ðŸ“ Group: P_sensitivity
+        ðŸ“„ Dataset: bus_names | Shape: (20,) | Dtype: object
+        ðŸ“„ Dataset: num_sensitive_buses | Shape: () | Dtype: int64
+        ðŸ“„ Dataset: sensitivities | Shape: (20,) | Dtype: float64
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“ Group: Load_39
+      ðŸ“„ Dataset: base_P_MW | Shape: () | Dtype: float64
+      ðŸ“„ Dataset: base_Q_MVAR | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: num_loads_analyzed | Shape: () | Dtype: int64
+  ðŸ“„ Dataset: min_sensitivity_threshold | Shape: () | Dtype: float64
+  ðŸ“„ Dataset: perturbation_step_P_MW | Shape: () | Dtype: float64
+  ðŸ“„ Dataset: perturbation_step_Q_MVAR | Shape: () | Dtype: float64
+ðŸ“ Group: y_matrix
+  ðŸ“ Group: admittance_matrix
+    ðŸ“„ Dataset: data_imag | Shape: (131,) | Dtype: float64
+    ðŸ“„ Dataset: data_real | Shape: (131,) | Dtype: float64
+    ðŸ“„ Dataset: dense_imag | Shape: (39, 39) | Dtype: float64
+    ðŸ“„ Dataset: dense_real | Shape: (39, 39) | Dtype: float64
+    ðŸ“„ Dataset: format | Shape: () | Dtype: object
+    ðŸ“„ Dataset: indices | Shape: (131,) | Dtype: int32
+    ðŸ“„ Dataset: indptr | Shape: (40,) | Dtype: int32
+    ðŸ“„ Dataset: shape | Shape: (2,) | Dtype: int64
+  ðŸ“ Group: bus_information
+    ðŸ“„ Dataset: bus_names | Shape: (39,) | Dtype: object
+    ðŸ“„ Dataset: num_buses | Shape: () | Dtype: int64
+  ðŸ“ Group: construction_statistics
+    ðŸ“„ Dataset: generators | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: lines | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: loads | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: shunts | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: skipped | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: transformers | Shape: () | Dtype: int64
+  ðŸ“„ Dataset: construction_time_seconds | Shape: () | Dtype: float64
+  ðŸ“„ Dataset: construction_timestamp | Shape: () | Dtype: object
+  ðŸ“ Group: matrix_properties
+    ðŸ“„ Dataset: condition_number | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: density | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: frobenius_norm | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: is_hermitian | Shape: () | Dtype: bool
+    ðŸ“„ Dataset: is_symmetric | Shape: () | Dtype: bool
+    ðŸ“„ Dataset: largest_eigenvalue_magnitude | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: matrix_size | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: max_diagonal_imag | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: max_diagonal_real | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: min_diagonal_imag | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: min_diagonal_real | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: nnz | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: rank_estimate | Shape: () | Dtype: int64
+    ðŸ“„ Dataset: smallest_eigenvalue_magnitude | Shape: () | Dtype: float64
+    ðŸ“„ Dataset: zero_diagonal_elements | Shape: () | Dtype: int64
+  ðŸ“„ Dataset: matrix_size | Shape: () | Dtype: int64
