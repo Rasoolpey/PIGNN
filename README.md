@@ -6,9 +6,9 @@ This README is intentionally high-level and will be updated as the project progr
 
 ## Goals and roadmap (high-level)
 
-- Stage 1 — Visualization (completed): build graph representations of power networks and produce visualizations for the three electrical phases to inspect topology and attributes.
-- Stage 2 — Load-flow solver (completed): implement a load-flow solver (physics-informed and/or conventional) operating on the graph representation. Validate results against expected operating points.
-- Stage 3 — Contingency analysis (in-progress): run N-1 and selected N-k scenarios, store scenario outputs, and compare results with DIgSILENT outputs (or other reference tools).
+- Stage 1 — Visualization ✅ (completed): build graph representations of power networks and produce visualizations for the three electrical phases to inspect topology and attributes.
+- Stage 2 — Load-flow solver ✅ (completed): implement a load-flow solver (physics-informed and/or conventional) operating on the graph representation. Validate results against expected operating points.
+- Stage 3 — Contingency analysis ✅ (completed): run N-1 and selected N-k scenarios, store scenario outputs, and compare results with PowerFactory outputs through comprehensive side-by-side comparison plots.
 - Stage 4 — Model integration and learning: integrate physics-informed graph neural networks (GNNs) to learn corrections or accelerate repeated power flow computations.
 - Stage 5 — Evaluation and deployment: comprehensive evaluation, automated comparison pipelines, and packaging for reproducible experiments.
 
@@ -19,12 +19,12 @@ This README is intentionally high-level and will be updated as the project progr
 - `physics/` — load-flow and solver implementations, impedance handling, and coupling models.
 - `visualization/` — graph plotting utilities and demo scripts.
 - `Contingency Analysis/` — outputs and scenario data for contingency experiments.
-- `explainations/` — documentation and step-by-step notes. (See the READMEs here for details on Visualization and Loadflow stages.)
-- `load_flow_demo.py`, `visualization_demo.py` — demo scripts used to run the two completed stages.
+- `explainations/` — documentation and step-by-step notes. (See the READMEs here for details on Visualization, Loadflow, and Contingency Analysis stages.)
+- `load_flow_demo.py`, `visualization_demo.py`, `contingency_demo.py` — demo scripts used to run the three completed stages.
 
 ## How the pieces fit together
 
-The research pipeline is organized so that the graph construction and visualization (Stage 1) provide a quick sanity check on topology and data attributes. The load-flow solver (Stage 2) consumes the same graph structures and physical parameters to compute voltages, flows, and losses. Contingency analysis (Stage 3) will iterate the load flow under perturbed network states (line/generator outages) and compare outcomes with DIgSILENT reference outputs to quantify differences.
+The research pipeline is organized so that the graph construction and visualization (Stage 1) provide a quick sanity check on topology and data attributes. The load-flow solver (Stage 2) consumes the same graph structures and physical parameters to compute voltages, flows, and losses. Contingency analysis (Stage 3) iterates the load flow under perturbed network states (line/generator outages) and compares outcomes with PowerFactory reference outputs through comprehensive side-by-side comparison plots, achieving excellent accuracy validation.
 
 ## Quick start (local)
 
@@ -47,6 +47,12 @@ The research pipeline is organized so that the graph construction and visualizat
    python load_flow_demo.py
    ```
 
+5. Run the contingency analysis demo:
+
+   ```bash
+   python contingency_demo.py
+   ```
+
 ## Notes
 - The code uses numpy, scipy, h5py, matplotlib and networkx; see `requirements.txt` for full dependency list.
 - The `explainations/` folder contains two more detailed READMEs that document the completed stages in depth.
@@ -54,9 +60,10 @@ The research pipeline is organized so that the graph construction and visualizat
 ## Next steps
 
 - Add automated tests and validation scripts.
-- Implement the contingency analysis pipeline and the comparison utilities against DIgSILENT outputs.
+- ✅ Implement the contingency analysis pipeline and the comparison utilities against PowerFactory outputs.
+- Develop physics-informed graph neural networks (GNNs) for Stage 4.
 - Update this README with experiment results and a reproducible script for running the full pipeline.
 
 ---
 
-For details about the Visualization and Load-flow steps see the two READMEs in the `explainations/` folder.
+For details about the Visualization, Load-flow, and Contingency Analysis steps see the READMEs in the `explainations/` folder.

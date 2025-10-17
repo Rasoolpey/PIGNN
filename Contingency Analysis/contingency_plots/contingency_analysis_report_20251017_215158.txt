@@ -1,0 +1,21 @@
+PIGNN CONTINGENCY ANALYSIS REPORT
+==================================================
+Generated: 2025-10-17 21:51:58
+
+SUMMARY STATISTICS
+--------------------
+Total scenarios analyzed: 7
+Minimum voltage across all scenarios: 0.869 pu
+Maximum voltage across all scenarios: 1.064 pu
+Average system losses: 207.3 MW
+Critical scenarios (min V < 0.90 pu): 5
+
+DETAILED SCENARIO RESULTS
+------------------------------
+
+Scenario 196: Line Line 10 - 13 taken out of service...
+  Min Voltage: 0.869 pu
+  Generation: 5604.6 MW
+  Load: 5469.1 MW
+  Losses: 135.5 MW
+  Violations: 4 low, 1 high
