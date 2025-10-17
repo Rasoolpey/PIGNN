@@ -18,7 +18,9 @@ The visualization step provides a clear, human-inspectable representation of the
 1. Prepare a Python environment with the usual scientific stack (numpy, scipy, matplotlib, h5py, networkx if not already installed).
 2. From the repository root run:
 
+   ```bash
    python visualization_demo.py
+   ```
 
 3. The script will load a sample `.h5` scenario, construct three per-phase graphs and display / save figures (depending on the script's internal settings).
 

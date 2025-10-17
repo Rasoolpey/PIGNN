@@ -31,23 +31,29 @@ The research pipeline is organized so that the graph construction and visualizat
 1. Ensure you have a Python 3.8+ environment.
 2. Install dependencies (if using a virtual environment):
 
+   ```bash
    pip install -r requirements.txt
+   ```
 
 3. Inspect or run the visualization demo:
 
+   ```bash
    python visualization_demo.py
+   ```
 
 4. Run the load-flow demo:
 
+   ```bash
    python load_flow_demo.py
+   ```
 
-Notes
-- There is no `requirements.txt` included in the repository by default. Add one that matches your environment. The code uses numpy, scipy, h5py, matplotlib and may use networkx; add packages as needed.
+## Notes
+- The code uses numpy, scipy, h5py, matplotlib and networkx; see `requirements.txt` for full dependency list.
 - The `explainations/` folder contains two more detailed READMEs that document the completed stages in depth.
 
 ## Next steps
 
-- Add automated tests and a minimal `requirements.txt`.
+- Add automated tests and validation scripts.
 - Implement the contingency analysis pipeline and the comparison utilities against DIgSILENT outputs.
 - Update this README with experiment results and a reproducible script for running the full pipeline.
 

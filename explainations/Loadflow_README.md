@@ -19,7 +19,9 @@ The load-flow step computes steady-state voltages, angles, branch flows and loss
 1. Ensure required Python packages are installed (numpy, scipy, h5py; see project notes).
 2. From repository root run:
 
+   ```bash
    python load_flow_demo.py
+   ```
 
 3. The demo loads a sample `.h5` scenario, runs the solver, and outputs results to the console and (optionally) to files under `Contingency Analysis/contingency_out/`.
 
