@@ -1,0 +1,83 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Scenario Comparison Report: demo_scenario</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { background-color: #f0f0f0; padding: 15px; margin-bottom: 20px; }
+                .section { margin-bottom: 30px; }
+                .metric { background-color: #f9f9f9; padding: 10px; margin: 5px 0; }
+                .error { color: #d32f2f; }
+                .warning { color: #f57c00; }
+                .good { color: #388e3c; }
+                table { border-collapse: collapse; width: 100%; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Power Flow Comparison Report</h1>
+                <h2>Scenario: demo_scenario</h2>
+                <p>Generated on: 2025-10-17 20:04:21</p>
+            </div>
+            
+            <div class="section">
+                <h3>Overall Quality Assessment</h3>
+                <div class="metric">
+                    <strong>Overall Quality:</strong> 
+                    <span class="error">
+                        FAILED
+                    </span>
+                </div>
+                <div class="metric">
+                    <strong>Voltage Quality:</strong> 
+                    <span class="good">
+                        EXCELLENT
+                    </span>
+                </div>
+                <div class="metric">
+                    <strong>Flow Quality:</strong> 
+                    <span class="good">
+                        EXCELLENT
+                    </span>
+                </div>
+                <div class="metric error"><strong>Issues:</strong><ul><li>Solver did not converge</li></ul></div>
+            </div>
+            
+            <div class="section">
+                <h3>Convergence Information</h3>
+                <table>
+                    <tr><th>Metric</th><th>Value</th></tr>
+                    <tr><td>Solver Converged</td><td>False</td></tr>
+                    <tr><td>Iterations</td><td>9</td></tr>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h3>Voltage Error Summary</h3>
+                <table>
+                    <tr><th>Metric</th><th>Value</th><th>Unit</th></tr>
+                    <tr><td>Maximum Magnitude Error</td><td>0.000000</td><td>pu</td></tr>
+                    <tr><td>Maximum Percentage Error</td><td>0.0000</td><td>%</td></tr>
+                    <tr><td>RMS Magnitude Error</td><td>0.000000</td><td>pu</td></tr>
+                    <tr><td>Maximum Angle Error</td><td>0.0000</td><td>degrees</td></tr>
+                    <tr><td>RMS Angle Error</td><td>0.0000</td><td>degrees</td></tr>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h3>Power Flow Error Summary</h3>
+                <table>
+                    <tr><th>Metric</th><th>Value</th><th>Unit</th></tr>
+                    <tr><td>Maximum P Flow Error</td><td>0.0000</td><td>%</td></tr>
+                    <tr><td>Maximum Q Flow Error</td><td>0.0000</td><td>%</td></tr>
+                    <tr><td>RMS P Flow Error</td><td>0.0000</td><td>%</td></tr>
+                    <tr><td>RMS Q Flow Error</td><td>0.0000</td><td>%</td></tr>
+                </table>
+            </div>
+        
+        </body>
+        </html>
+        

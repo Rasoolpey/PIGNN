@@ -1,0 +1,4 @@
+scenario_name,converged,iterations,max_voltage_error_pu,max_angle_error_deg,rms_voltage_error_pu,rms_angle_error_deg,max_p_flow_error_percent,max_q_flow_error_percent
+scenario_0,False,14,0.0,0.0,0.0,0.0,0.0,0.0
+scenario_1,False,1,0.0,0.0,0.0,0.0,0.0,0.0
+scenario_10,False,1,0.0,0.0,0.0,0.0,0.0,0.0

@@ -1,0 +1,5 @@
+{
+  "scenario_file": "Contingency Analysis\\contingency_scenarios\\scenario_1.h5",
+  "timestamp": "2025-10-17T20:01:19.602354",
+  "error": "'GraphBuilder' object has no attribute 'build_three_phase_graphs'"
+}

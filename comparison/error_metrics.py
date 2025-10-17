@@ -230,10 +230,24 @@ class ErrorCalculator:
         results.solver_iterations = getattr(solver_results, 'iterations', 0)
         
         # Voltage comparison
-        if hasattr(solver_results, 'voltages') and 'bus_names' in digsilent_data:
+        if (hasattr(solver_results, 'voltages') and 
+            solver_results.voltages is not None and 
+            'bus_names' in digsilent_data):
             try:
+                # Convert voltage array to dictionary if needed
+                if isinstance(solver_results.voltages, np.ndarray):
+                    # Create dummy bus names if node_mapping not available
+                    if hasattr(solver_results, 'node_mapping') and solver_results.node_mapping:
+                        voltage_dict = {bus: solver_results.voltages[idx] 
+                                      for bus, idx in solver_results.node_mapping.items()}
+                    else:
+                        voltage_dict = {f"Bus{i+1}": solver_results.voltages[i] 
+                                      for i in range(len(solver_results.voltages))}
+                else:
+                    voltage_dict = solver_results.voltages
+                
                 mag_errors, angle_errors, common_buses = self.compare_voltages(
-                    solver_results.voltages, digsilent_data)
+                    voltage_dict, digsilent_data)
                 
                 results.voltage_mag_error_pu = mag_errors
                 results.voltage_angle_error_deg = angle_errors

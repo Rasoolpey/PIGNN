@@ -24,6 +24,7 @@ from comparison import DIgSILENTParser, ErrorCalculator, BatchComparator, Compar
 from data.h5_loader import H5DataLoader
 from data.graph_builder import GraphBuilder
 from physics.load_flow_solver import ThreePhaseLoadFlowSolver
+from core.graph_base import PhaseType
 
 
 def demo_single_scenario_comparison():
@@ -43,18 +44,19 @@ def demo_single_scenario_comparison():
     
     try:
         # Load and solve scenario
-        loader = H5DataLoader()
+        loader = H5DataLoader(scenario_file)
         graph_builder = GraphBuilder()
-        solver = ThreePhaseLoadFlowSolver()
         
         print("Loading scenario data...")
-        raw_data = loader.load_scenario(scenario_file)
+        raw_data = loader.load_all_data()
         
         print("Building graphs...")
-        graphs = graph_builder.build_three_phase_graphs(raw_data)
+        graphs = graph_builder.build_from_h5_data(raw_data)
         
         print("Running load flow solver...")
-        solver_results = solver.solve_three_phase(graphs)
+        # The graph builder returns a single graph, not a dict of phases
+        solver = ThreePhaseLoadFlowSolver(graphs)
+        solver_results = solver.solve()
         
         print(f"Solver converged: {solver_results.converged}")
         print(f"Solver iterations: {getattr(solver_results, 'iterations', 'N/A')}")
@@ -90,7 +92,7 @@ def demo_single_scenario_comparison():
 
 def demo_digsilent_parser():
     """Demonstrate DIgSILENT parser functionality."""
-    print("\\n=== DIgSILENT Parser Demo ===")
+    print("\n=== DIgSILENT Parser Demo ===")
     
     # Create sample DIgSILENT CSV data for demonstration
     sample_dir = Path("sample_digsilent_data")
@@ -99,29 +101,40 @@ def demo_digsilent_parser():
     # Create sample bus voltage CSV
     bus_voltage_file = sample_dir / "bus_voltages.csv"
     with open(bus_voltage_file, 'w') as f:
-        f.write("Bus Name,V_mag (p.u.),V_angle (deg),V_mag (kV)\\n")
-        f.write("Bus1,1.0000,0.0000,11.0\\n")
-        f.write("Bus2,0.9950,-2.3456,10.945\\n")
-        f.write("Bus3,0.9875,-5.6789,10.8625\\n")
+        f.write("Bus Name,V_mag (p.u.),V_angle (deg),V_mag (kV)\n")
+        f.write("Bus1,1.0000,0.0000,11.0\n")
+        f.write("Bus2,0.9950,-2.3456,10.945\n")
+        f.write("Bus3,0.9875,-5.6789,10.8625\n")
     
     # Create sample branch flow CSV
     branch_flow_file = sample_dir / "branch_flows.csv"
     with open(branch_flow_file, 'w') as f:
-        f.write("From Bus,To Bus,P_flow (MW),Q_flow (MVAr),P_loss (MW),Q_loss (MVAr)\\n")
-        f.write("Bus1,Bus2,50.25,15.30,0.125,0.080\\n")
-        f.write("Bus2,Bus3,25.10,8.75,0.095,0.060\\n")
+        f.write("From Bus,To Bus,P_flow (MW),Q_flow (MVAr),P_loss (MW),Q_loss (MVAr)\n")
+        f.write("Bus1,Bus2,50.25,15.30,0.125,0.080\n")
+        f.write("Bus2,Bus3,25.10,8.75,0.095,0.060\n")
     
     try:
         # Parse the sample data
         parser = DIgSILENTParser(use_pandas=False)
         
         print("Parsing bus voltage data...")
+        print(f"CSV file exists: {bus_voltage_file.exists()}")
+        if bus_voltage_file.exists():
+            # Debug: Check what the CSV reader sees
+            import csv
+            with open(bus_voltage_file, 'r', newline='', encoding='utf-8') as csvfile:
+                reader = csv.DictReader(csvfile)
+                print(f"CSV columns: {reader.fieldnames}")
+                for i, row in enumerate(reader):
+                    if i < 2:  # Show first 2 rows
+                        print(f"Row {i}: {dict(row)}")
+        
         voltage_data = parser.parse_bus_voltages(bus_voltage_file)
         print(f"Found {len(voltage_data['bus_names'])} buses")
         print(f"Bus names: {voltage_data['bus_names']}")
         print(f"Voltage magnitudes: {voltage_data['v_magnitude_pu']}")
         
-        print("\\nParsing branch flow data...")
+        print("\nParsing branch flow data...")
         flow_data = parser.parse_branch_flows(branch_flow_file)
         print(f"Found {len(flow_data['from_buses'])} branches")
         print(f"P flows: {flow_data['p_flow_mw']}")
@@ -139,7 +152,7 @@ def demo_digsilent_parser():
 
 def demo_batch_comparison():
     """Demonstrate batch comparison functionality."""
-    print("\\n=== Batch Comparison Demo ===")
+    print("\n=== Batch Comparison Demo ===")
     
     # Check if contingency scenarios exist
     scenarios_dir = Path("Contingency Analysis/contingency_scenarios")
@@ -172,7 +185,7 @@ def demo_batch_comparison():
         comparisons = batch_comparator.run_batch_comparison(
             scenarios_dir, mock_digsilent_dir, max_scenarios=3)
         
-        print(f"\\nCompleted comparison of {len(comparisons)} scenarios")
+        print(f"\nCompleted comparison of {len(comparisons)} scenarios")
         
         # Generate batch report
         report_gen = ComparisonReportGenerator()
@@ -204,9 +217,14 @@ def create_mock_digsilent_data(solver_results) -> dict:
     v_magnitudes = []
     v_angles = []
     
-    if hasattr(solver_results, 'voltages') and solver_results.voltages:
-        for bus_name, voltage in list(solver_results.voltages.items())[:10]:  # First 10 buses
+    if hasattr(solver_results, 'voltages') and solver_results.voltages is not None:
+        # Create bus names and extract sample voltage data
+        for i in range(min(10, len(solver_results.voltages))):
+            bus_name = f"Bus{i+1}"
             bus_names.append(bus_name)
+            
+            # Get the complex voltage for this bus
+            voltage = solver_results.voltages[i]
             
             # Add small random perturbations to create realistic comparison
             v_mag_perturbation = np.random.normal(0, 0.001)  # Small voltage error
@@ -233,17 +251,17 @@ def create_mock_digsilent_files(output_dir: Path):
     # Bus voltages file
     bus_file = output_dir / "bus_voltages.csv"
     with open(bus_file, 'w') as f:
-        f.write("Bus Name,V_mag (p.u.),V_angle (deg),V_mag (kV)\\n")
-        f.write("Bus1,1.0005,0.0123,11.0055\\n")
-        f.write("Bus2,0.9948,-2.3567,10.9428\\n")
-        f.write("Bus3,0.9871,-5.6912,10.8581\\n")
+        f.write("Bus Name,V_mag (p.u.),V_angle (deg),V_mag (kV)\n")
+        f.write("Bus1,1.0005,0.0123,11.0055\n")
+        f.write("Bus2,0.9948,-2.3567,10.9428\n")
+        f.write("Bus3,0.9871,-5.6912,10.8581\n")
     
     # Branch flows file
     flow_file = output_dir / "branch_flows.csv"
     with open(flow_file, 'w') as f:
-        f.write("From Bus,To Bus,P_flow (MW),Q_flow (MVAr),P_loss (MW),Q_loss (MVAr)\\n")
-        f.write("Bus1,Bus2,50.12,15.28,0.123,0.078\\n")
-        f.write("Bus2,Bus3,25.05,8.72,0.092,0.058\\n")
+        f.write("From Bus,To Bus,P_flow (MW),Q_flow (MVAr),P_loss (MW),Q_loss (MVAr)\n")
+        f.write("Bus1,Bus2,50.12,15.28,0.123,0.078\n")
+        f.write("Bus2,Bus3,25.05,8.72,0.092,0.058\n")
 
 
 def main():
@@ -256,9 +274,9 @@ def main():
     demo_single_scenario_comparison()
     demo_batch_comparison()
     
-    print("\\n" + "=" * 50)
+    print("\n" + "=" * 50)
     print("Demo completed!")
-    print("\\nNext steps:")
+    print("\nNext steps:")
     print("1. Prepare actual DIgSILENT exported data")
     print("2. Update file paths in the demo to point to your data")
     print("3. Run contingency analysis with real scenarios")

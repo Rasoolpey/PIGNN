@@ -1,0 +1,5 @@
+{
+  "scenario_file": "Contingency Analysis\\contingency_scenarios\\scenario_10.h5",
+  "timestamp": "2025-10-17T20:02:38.600373",
+  "error": "'ThreePhaseLoadFlowSolver' object has no attribute 'solve_load_flow'"
+}

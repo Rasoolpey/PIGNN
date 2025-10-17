@@ -1,0 +1,25 @@
+{
+  "total_scenarios": 3,
+  "converged_scenarios": 0,
+  "convergence_rate": 0.0,
+  "avg_iterations": 5.333333333333333,
+  "max_iterations": "14",
+  "voltage_error_stats": {
+    "max_abs": 0,
+    "rms": 0,
+    "mean": 0,
+    "std": 0
+  },
+  "angle_error_stats": {
+    "max_abs": 0,
+    "rms": 0,
+    "mean": 0,
+    "std": 0
+  },
+  "p_flow_error_stats": {
+    "max_abs": 0,
+    "rms": 0,
+    "mean": 0,
+    "std": 0
+  }
+}

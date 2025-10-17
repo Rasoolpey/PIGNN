@@ -136,10 +136,10 @@ class DIgSILENTParser:
                 # Try to find the right columns (case-insensitive)
                 row_lower = {k.lower(): v for k, v in row.items()}
                 
-                bus_name = self._extract_value(row_lower, ['bus', 'name', 'bus_name', 'node'])
-                vmag_pu = self._extract_value(row_lower, ['v_mag_pu', 'vmag_pu', 'voltage_pu', 'v_pu'])
-                vang = self._extract_value(row_lower, ['v_angle', 'angle', 'v_ang', 'phase'])
-                vmag_kv = self._extract_value(row_lower, ['v_mag_kv', 'vmag_kv', 'voltage_kv', 'v_kv'])
+                bus_name = self._extract_value(row_lower, ['bus', 'name', 'bus_name', 'node', 'bus name'])
+                vmag_pu = self._extract_value(row_lower, ['v_mag_pu', 'vmag_pu', 'voltage_pu', 'v_pu', 'v_mag (p.u.)'])
+                vang = self._extract_value(row_lower, ['v_angle', 'angle', 'v_ang', 'phase', 'v_angle (deg)'])
+                vmag_kv = self._extract_value(row_lower, ['v_mag_kv', 'vmag_kv', 'voltage_kv', 'v_kv', 'v_mag (kv)'])
                 
                 if bus_name and vmag_pu is not None and vang is not None:
                     bus_names.append(bus_name)
@@ -189,12 +189,12 @@ class DIgSILENTParser:
             for row in reader:
                 row_lower = {k.lower(): v for k, v in row.items()}
                 
-                from_bus = self._extract_value(row_lower, ['from', 'from_bus', 'bus_from', 'from_node'])
-                to_bus = self._extract_value(row_lower, ['to', 'to_bus', 'bus_to', 'to_node'])
-                p_flow = self._extract_value(row_lower, ['p_flow', 'p', 'active_power', 'p_mw'])
-                q_flow = self._extract_value(row_lower, ['q_flow', 'q', 'reactive_power', 'q_mvar'])
-                p_loss = self._extract_value(row_lower, ['p_loss', 'loss_p', 'active_loss', 'ploss'])
-                q_loss = self._extract_value(row_lower, ['q_loss', 'loss_q', 'reactive_loss', 'qloss'])
+                from_bus = self._extract_value(row_lower, ['from', 'from_bus', 'bus_from', 'from_node', 'from bus'])
+                to_bus = self._extract_value(row_lower, ['to', 'to_bus', 'bus_to', 'to_node', 'to bus'])
+                p_flow = self._extract_value(row_lower, ['p_flow', 'p', 'active_power', 'p_mw', 'p_flow (mw)'])
+                q_flow = self._extract_value(row_lower, ['q_flow', 'q', 'reactive_power', 'q_mvar', 'q_flow (mvar)'])
+                p_loss = self._extract_value(row_lower, ['p_loss', 'loss_p', 'active_loss', 'ploss', 'p_loss (mw)'])
+                q_loss = self._extract_value(row_lower, ['q_loss', 'loss_q', 'reactive_loss', 'qloss', 'q_loss (mvar)'])
                 
                 if from_bus and to_bus and p_flow is not None and q_flow is not None:
                     from_buses.append(from_bus)

@@ -48,10 +48,8 @@ class BatchComparator:
         self.parser = DIgSILENTParser(use_pandas=use_pandas)
         self.error_calc = ErrorCalculator()
         
-        # Initialize components
-        self.loader = H5DataLoader()
+        # Initialize components  
         self.graph_builder = GraphBuilder()
-        self.solver = ThreePhaseLoadFlowSolver()
         
         # Results storage
         self.results = {}
@@ -82,12 +80,14 @@ class BatchComparator:
         
         try:
             # Load and build graph from H5 file
-            raw_data = self.loader.load_scenario(scenario_file)
-            graphs = self.graph_builder.build_three_phase_graphs(raw_data)
+            loader = H5DataLoader(str(scenario_file))
+            raw_data = loader.load_all_data()
+            graphs = self.graph_builder.build_from_h5_data(raw_data)
             
             # Run load flow solver
             print(f"  Running load flow solver...")
-            solver_results = self.solver.solve_three_phase(graphs)
+            solver = ThreePhaseLoadFlowSolver(graphs)
+            solver_results = solver.solve()
             
             # Load DIgSILENT reference data
             print(f"  Loading DIgSILENT reference data...")
