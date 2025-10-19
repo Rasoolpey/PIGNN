@@ -1,0 +1,742 @@
+# ============================================================================
+# H5 File Format Specification for Physics-Informed Power Grid Graphs
+# ============================================================================
+# Version: 2.0
+# Date: 2025-10-19
+# Purpose: Complete specification for storing three-phase power grid graphs
+#          with both steady-state and dynamic (RMS) simulation capabilities
+# ============================================================================
+
+metadata:
+  description: "File-level metadata and system information"
+  required: true
+  attributes:
+    version:
+      type: string
+      description: "H5 format version"
+      example: "2.0"
+    creation_date:
+      type: string
+      description: "ISO 8601 timestamp"
+      example: "2025-10-19T14:30:00Z"
+    grid_name:
+      type: string
+      description: "System name"
+      example: "IEEE39_three_phase"
+    base_mva:
+      type: float64
+      description: "System base power (MVA)"
+      example: 100.0
+    base_frequency_hz:
+      type: float64
+      description: "Nominal frequency (Hz)"
+      example: 60.0
+    num_buses:
+      type: int64
+      description: "Number of buses"
+    num_phases:
+      type: int64
+      description: "Number of phases (3 for three-phase)"
+      default: 3
+    description:
+      type: string
+      description: "Optional system description"
+      required: false
+
+# ============================================================================
+# TOPOLOGY - Graph Structure
+# ============================================================================
+topology:
+  description: "Graph topology and connectivity information"
+  required: true
+  
+  adjacency_matrix:
+    description: "Sparse adjacency matrix (per-phase)"
+    format: "CSR (Compressed Sparse Row)"
+    datasets:
+      data:
+        type: float64
+        shape: "(nnz,)"
+        description: "Non-zero values"
+      indices:
+        type: int32
+        shape: "(nnz,)"
+        description: "Column indices"
+      indptr:
+        type: int32
+        shape: "(N+1,)"
+        description: "Row pointers"
+      shape:
+        type: int64
+        shape: "(2,)"
+        description: "Matrix dimensions [N, N]"
+  
+  edge_list:
+    description: "Alternative edge representation"
+    datasets:
+      from_bus:
+        type: int64
+        shape: "(E,)"
+        description: "Source bus indices"
+      to_bus:
+        type: int64
+        shape: "(E,)"
+        description: "Destination bus indices"
+      edge_type:
+        type: int64
+        shape: "(E,)"
+        description: "0=line, 1=transformer, 2=switch"
+
+# ============================================================================
+# PHASES - Per-Phase Data (a, b, c)
+# ============================================================================
+phases:
+  description: "Data for each phase (a, b, c)"
+  required: true
+  
+  phase_a:
+    nodes:
+      description: "Node data for phase A"
+      datasets:
+        bus_ids:
+          type: int64
+          shape: "(N,)"
+          description: "Bus identification numbers"
+        bus_names:
+          type: string
+          shape: "(N,)"
+          description: "Bus names"
+        bus_types:
+          type: int64
+          shape: "(N,)"
+          description: "0=PQ, 1=PV, 2=Slack, 3=Generator"
+        base_voltages_kV:
+          type: float64
+          shape: "(N,)"
+          description: "Base voltage levels (kV)"
+        voltages_pu:
+          type: float64
+          shape: "(N,)"
+          description: "Voltage magnitude (pu)"
+        angles_deg:
+          type: float64
+          shape: "(N,)"
+          description: "Voltage angle (degrees)"
+        P_injection_MW:
+          type: float64
+          shape: "(N,)"
+          description: "Net active power injection (MW)"
+        Q_injection_MVAR:
+          type: float64
+          shape: "(N,)"
+          description: "Net reactive power injection (MVAR)"
+        P_generation_MW:
+          type: float64
+          shape: "(N,)"
+          description: "Generation contribution (MW)"
+        Q_generation_MVAR:
+          type: float64
+          shape: "(N,)"
+          description: "Generation contribution (MVAR)"
+        P_load_MW:
+          type: float64
+          shape: "(N,)"
+          description: "Load consumption (MW)"
+        Q_load_MVAR:
+          type: float64
+          shape: "(N,)"
+          description: "Load consumption (MVAR)"
+        shunt_G_pu:
+          type: float64
+          shape: "(N,)"
+          description: "Shunt conductance (pu)"
+        shunt_B_pu:
+          type: float64
+          shape: "(N,)"
+          description: "Shunt susceptance (pu)"
+    
+    edges:
+      description: "Edge data for phase A"
+      datasets:
+        from_bus:
+          type: int64
+          shape: "(E,)"
+        to_bus:
+          type: int64
+          shape: "(E,)"
+        element_id:
+          type: string
+          shape: "(E,)"
+          description: "Unique element identifier"
+        element_type:
+          type: int64
+          shape: "(E,)"
+          description: "0=line, 1=transformer"
+        R_pu:
+          type: float64
+          shape: "(E,)"
+          description: "Resistance (pu)"
+        X_pu:
+          type: float64
+          shape: "(E,)"
+          description: "Reactance (pu)"
+        B_shunt_pu:
+          type: float64
+          shape: "(E,)"
+          description: "Shunt susceptance (pu)"
+        rating_MVA:
+          type: float64
+          shape: "(E,)"
+          description: "Thermal rating (MVA)"
+        length_km:
+          type: float64
+          shape: "(E,)"
+          description: "Line length (km)"
+          required: false
+        in_service:
+          type: bool
+          shape: "(E,)"
+          description: "Service status"
+  
+  phase_b:
+    description: "Same structure as phase_a"
+    reference: "phase_a"
+  
+  phase_c:
+    description: "Same structure as phase_a"
+    reference: "phase_a"
+
+# ============================================================================
+# COUPLING - Inter-Phase Coupling
+# ============================================================================
+coupling:
+  description: "Three-phase coupling matrices for lines and transformers"
+  required: true
+  
+  line_coupling:
+    description: "3x3 impedance matrices for transmission lines"
+    datasets:
+      line_names:
+        type: string
+        shape: "(N_lines,)"
+        description: "Line identifiers"
+      Z_matrix_abc:
+        type: complex128
+        shape: "(N_lines, 3, 3)"
+        description: "Full 3x3 impedance matrix [Ohm] per line"
+      Y_shunt_abc:
+        type: complex128
+        shape: "(N_lines, 3, 3)"
+        description: "Shunt admittance matrix [S] per line"
+      sequence_impedances:
+        description: "Alternative: sequence domain representation"
+        Z0_ohm:
+          type: complex128
+          shape: "(N_lines,)"
+          description: "Zero-sequence impedance"
+        Z1_ohm:
+          type: complex128
+          shape: "(N_lines,)"
+          description: "Positive-sequence impedance"
+        Z2_ohm:
+          type: complex128
+          shape: "(N_lines,)"
+          description: "Negative-sequence impedance"
+  
+  transformer_coupling:
+    description: "3x3 matrices for transformers"
+    datasets:
+      transformer_names:
+        type: string
+        shape: "(N_trafos,)"
+      winding_config:
+        type: string
+        shape: "(N_trafos,)"
+        description: "e.g., 'YNyn0', 'Dyn11', 'YNd11'"
+      vector_group:
+        type: string
+        shape: "(N_trafos,)"
+        description: "IEC vector group notation"
+      phase_shift_deg:
+        type: float64
+        shape: "(N_trafos,)"
+        description: "Phase shift in degrees"
+      Z_matrix_primary:
+        type: complex128
+        shape: "(N_trafos, 3, 3)"
+        description: "Primary side impedance matrix"
+      Z_matrix_secondary:
+        type: complex128
+        shape: "(N_trafos, 3, 3)"
+        description: "Secondary side impedance matrix"
+      connection_matrix:
+        type: complex128
+        shape: "(N_trafos, 3, 3)"
+        description: "Connection/coupling matrix"
+
+# ============================================================================
+# STEADY-STATE - Load Flow Results
+# ============================================================================
+steady_state:
+  description: "Power flow solution and steady-state operating point"
+  required: true
+  
+  power_flow_results:
+    datasets:
+      converged:
+        type: bool
+        description: "Convergence status"
+      iterations:
+        type: int64
+        description: "Number of iterations"
+      max_mismatch:
+        type: float64
+        description: "Maximum power mismatch (pu)"
+      total_generation_MW:
+        type: float64
+        description: "Total active power generation"
+      total_load_MW:
+        type: float64
+        description: "Total active power load"
+      total_losses_MW:
+        type: float64
+        description: "Total system losses"
+      max_voltage_pu:
+        type: float64
+        description: "Maximum bus voltage"
+      min_voltage_pu:
+        type: float64
+        description: "Minimum bus voltage"
+      timestamp:
+        type: string
+        description: "Solution timestamp"
+  
+  admittance_matrix:
+    description: "System admittance matrix"
+    format: "CSR (Compressed Sparse Row)"
+    datasets:
+      Y_single_phase:
+        description: "Per-phase Y-matrix (N×N)"
+        data_real:
+          type: float64
+          shape: "(nnz,)"
+        data_imag:
+          type: float64
+          shape: "(nnz,)"
+        indices:
+          type: int32
+          shape: "(nnz,)"
+        indptr:
+          type: int32
+          shape: "(N+1,)"
+        shape:
+          type: int64
+          shape: "(2,)"
+      
+      Y_three_phase:
+        description: "Full 3-phase Y-matrix (3N×3N)"
+        data_real:
+          type: float64
+          shape: "(nnz,)"
+        data_imag:
+          type: float64
+          shape: "(nnz,)"
+        indices:
+          type: int32
+          shape: "(nnz,)"
+        indptr:
+          type: int32
+          shape: "(3N+1,)"
+        shape:
+          type: int64
+          shape: "(2,)"
+
+# ============================================================================
+# DYNAMIC_MODELS - RMS Simulation Parameters
+# ============================================================================
+dynamic_models:
+  description: "Dynamic component parameters for RMS simulation"
+  required: false  # Optional until dynamic data is available
+  
+  generators:
+    description: "Synchronous generator dynamic parameters"
+    datasets:
+      names:
+        type: string
+        shape: "(N_gen,)"
+      buses:
+        type: string
+        shape: "(N_gen,)"
+        description: "Connected bus names"
+      phases:
+        type: string
+        shape: "(N_gen,)"
+        description: "Connected phase (a, b, c, or abc)"
+      model_type:
+        type: string
+        shape: "(N_gen,)"
+        description: "e.g., 'GENCLS', 'GENROU', 'GENSAL'"
+      
+      # Mechanical Parameters
+      H_s:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Inertia constant (seconds)"
+        units: "s"
+        typical_range: [2.0, 10.0]
+      D_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Damping coefficient (pu on machine base)"
+        units: "pu"
+        typical_range: [0.0, 5.0]
+      
+      # Electrical Parameters - Reactances
+      xd_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "d-axis synchronous reactance"
+        units: "pu"
+        typical_range: [1.0, 2.5]
+      xq_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "q-axis synchronous reactance"
+        units: "pu"
+        typical_range: [0.8, 2.0]
+      xd_prime_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "d-axis transient reactance"
+        units: "pu"
+        typical_range: [0.15, 0.4]
+      xq_prime_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "q-axis transient reactance"
+        units: "pu"
+        typical_range: [0.2, 0.8]
+      xd_double_prime_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "d-axis subtransient reactance"
+        units: "pu"
+        typical_range: [0.1, 0.25]
+      xq_double_prime_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "q-axis subtransient reactance"
+        units: "pu"
+        typical_range: [0.1, 0.25]
+      xl_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Leakage reactance"
+        units: "pu"
+        typical_range: [0.05, 0.2]
+      ra_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Armature resistance"
+        units: "pu"
+        typical_range: [0.001, 0.01]
+      
+      # Time Constants
+      Td0_prime_s:
+        type: float64
+        shape: "(N_gen,)"
+        description: "d-axis transient open-circuit time constant"
+        units: "s"
+        typical_range: [3.0, 10.0]
+      Tq0_prime_s:
+        type: float64
+        shape: "(N_gen,)"
+        description: "q-axis transient open-circuit time constant"
+        units: "s"
+        typical_range: [0.5, 2.0]
+      Td0_double_prime_s:
+        type: float64
+        shape: "(N_gen,)"
+        description: "d-axis subtransient open-circuit time constant"
+        units: "s"
+        typical_range: [0.02, 0.05]
+      Tq0_double_prime_s:
+        type: float64
+        shape: "(N_gen,)"
+        description: "q-axis subtransient open-circuit time constant"
+        units: "s"
+        typical_range: [0.02, 0.05]
+      
+      # Saturation
+      S10:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Saturation factor at 1.0 pu"
+        units: "pu"
+        default: 0.0
+      S12:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Saturation factor at 1.2 pu"
+        units: "pu"
+        default: 0.0
+      
+      # Ratings
+      S_rated_MVA:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Rated apparent power"
+        units: "MVA"
+      V_rated_kV:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Rated voltage"
+        units: "kV"
+  
+  exciters:
+    description: "Excitation system (AVR) parameters"
+    datasets:
+      names:
+        type: string
+        shape: "(N_gen,)"
+      generator_names:
+        type: string
+        shape: "(N_gen,)"
+        description: "Associated generator"
+      model_type:
+        type: string
+        shape: "(N_gen,)"
+        description: "e.g., 'SEXS', 'IEEEAC1A', 'IEEEDC1A'"
+      
+      # Generic parameters (model-specific groups below)
+      Ka:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Regulator gain"
+        units: "pu"
+      Ta_s:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Regulator time constant"
+        units: "s"
+      Efd_max:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Maximum field voltage"
+        units: "pu"
+      Efd_min:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Minimum field voltage"
+        units: "pu"
+  
+  governors:
+    description: "Governor/turbine parameters"
+    datasets:
+      names:
+        type: string
+        shape: "(N_gen,)"
+      generator_names:
+        type: string
+        shape: "(N_gen,)"
+      model_type:
+        type: string
+        shape: "(N_gen,)"
+        description: "e.g., 'TGOV1', 'HYGOV', 'GAST'"
+      
+      # Generic parameters
+      R_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Speed droop"
+        units: "pu"
+        typical_range: [0.03, 0.07]
+      Tg_s:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Governor time constant"
+        units: "s"
+      Tt_s:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Turbine time constant"
+        units: "s"
+      Dt_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Turbine damping"
+        units: "pu"
+      Pmax_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Maximum power"
+        units: "pu"
+      Pmin_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Minimum power"
+        units: "pu"
+  
+  dynamic_loads:
+    description: "Dynamic load models (optional)"
+    required: false
+    datasets:
+      names:
+        type: string
+        shape: "(N_load,)"
+      buses:
+        type: string
+        shape: "(N_load,)"
+      model_type:
+        type: string
+        shape: "(N_load,)"
+        description: "e.g., 'ZIP', 'exponential', 'induction_motor'"
+      
+      # ZIP model parameters
+      alpha_p:
+        type: float64
+        shape: "(N_load,)"
+        description: "P constant-Z proportion"
+      alpha_i:
+        type: float64
+        shape: "(N_load,)"
+        description: "P constant-I proportion"
+      alpha_z:
+        type: float64
+        shape: "(N_load,)"
+        description: "P constant-P proportion"
+      beta_p:
+        type: float64
+        shape: "(N_load,)"
+        description: "Q constant-Z proportion"
+      beta_i:
+        type: float64
+        shape: "(N_load,)"
+        description: "Q constant-I proportion"
+      beta_z:
+        type: float64
+        shape: "(N_load,)"
+        description: "Q constant-P proportion"
+
+# ============================================================================
+# INITIAL_CONDITIONS - For RMS Simulation Initialization
+# ============================================================================
+initial_conditions:
+  description: "Initial dynamic states for time-domain simulation"
+  required: false
+  
+  generator_states:
+    datasets:
+      rotor_angles_rad:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Initial rotor angles (rad)"
+      rotor_speeds_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Initial rotor speeds (pu)"
+        default: 1.0
+      field_voltages_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Initial field voltages (pu)"
+      mechanical_power_pu:
+        type: float64
+        shape: "(N_gen,)"
+        description: "Initial mechanical power (pu)"
+
+# ============================================================================
+# SCENARIOS - Multiple Operating Conditions
+# ============================================================================
+scenarios:
+  description: "Multiple operating scenarios (contingencies, etc.)"
+  required: false
+  
+  scenario_registry:
+    datasets:
+      scenario_ids:
+        type: string
+        shape: "(N_scenarios,)"
+      descriptions:
+        type: string
+        shape: "(N_scenarios,)"
+      timestamps:
+        type: string
+        shape: "(N_scenarios,)"
+      is_baseline:
+        type: bool
+        shape: "(N_scenarios,)"
+  
+  scenario_data:
+    description: "Data for scenario_{id}"
+    datasets:
+      voltages_pu:
+        type: float64
+        shape: "(3*N_buses,)"
+        description: "Stacked voltages [phase_a, phase_b, phase_c]"
+      angles_deg:
+        type: float64
+        shape: "(3*N_buses,)"
+      P_injections_MW:
+        type: float64
+        shape: "(3*N_buses,)"
+      Q_injections_MVAR:
+        type: float64
+        shape: "(3*N_buses,)"
+      contingency_description:
+        type: string
+        description: "What changed in this scenario"
+      power_flow_converged:
+        type: bool
+
+# ============================================================================
+# NOTES AND CONVENTIONS
+# ============================================================================
+conventions:
+  units:
+    power: "MW, MVAR, MVA"
+    voltage: "pu or kV (specified in attribute)"
+    impedance: "pu or Ohm (specified in attribute)"
+    frequency: "Hz"
+    angle: "degrees or radians (specified in attribute)"
+    time: "seconds"
+  
+  per_unit_bases:
+    description: "All pu values are on system base unless specified"
+    system_base_MVA: "Specified in metadata/base_mva"
+    voltage_base: "Specified per bus in base_voltages_kV"
+    impedance_base: "Z_base = V_base^2 / S_base"
+  
+  array_indexing:
+    buses: "0-indexed (0 to N-1)"
+    phases: "a=0, b=1, c=2"
+    three_phase_stacking: "[phase_a_buses, phase_b_buses, phase_c_buses]"
+    example: "Bus 5 phase B → index 5 + N = 44 (for N=39)"
+  
+  sparse_matrices:
+    format: "CSR (Compressed Sparse Row)"
+    description: "Y[i,j] = data[k] where k ∈ [indptr[i], indptr[i+1]) and indices[k] = j"
+  
+  missing_values:
+    convention: "Use NaN (np.nan) for missing float values"
+    default_behavior: "H5 writer should provide sensible defaults"
+
+# ============================================================================
+# VERSION HISTORY
+# ============================================================================
+version_history:
+  v2.0:
+    date: "2025-10-19"
+    changes:
+      - "Added complete RMS dynamic parameters"
+      - "Added three-phase coupling matrices"
+      - "Added exciter and governor models"
+      - "Added initial conditions support"
+      - "Enhanced documentation with typical ranges"
+  
+  v1.0:
+    date: "2025-10-17"
+    changes:
+      - "Initial format for steady-state power flow"
+      - "Basic three-phase per-phase storage"
+      - "Topology and network data"
