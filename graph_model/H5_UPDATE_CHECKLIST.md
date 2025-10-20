@@ -1,6 +1,6 @@
 # H5 File Update Checklist
 
-**File:** `graph_model/IEEE39_RMS_Complete.h5`  
+**File:** `graph_model/Graph_model.h5`  
 **Current Status:** RMS Simulation Ready (Core Complete)  
 **Date:** October 19, 2025
 
@@ -212,7 +212,7 @@ def update_h5_file(h5_path):
         print(f"✅ Updated {h5_path}")
 
 # Run update
-update_h5_file('graph_model/IEEE39_RMS_Complete.h5')
+update_h5_file('graph_model/Graph_model.h5')
 ```
 
 ---

@@ -37,7 +37,7 @@ This package provides a comprehensive HDF5 storage format for power system data,
 
 ### File Information
 
-**Main File:** `IEEE39_RMS_Complete.h5`
+**Main File:** `Graph_model.h5`
 - **Grid:** IEEE 39-bus New England Test System
 - **Buses:** 39
 - **Lines:** 34
@@ -52,7 +52,7 @@ This package provides a comprehensive HDF5 storage format for power system data,
 ## File Structure
 
 ``
-IEEE39_RMS_Complete.h5
+Graph_model.h5
 
  metadata/                                 # System information
     grid_name: "IEEE39_Enhanced"
@@ -240,7 +240,7 @@ import h5py
 import numpy as np
 
 # Open the file
-with h5py.File('graph_model/IEEE39_RMS_Complete.h5', 'r') as f:
+with h5py.File('graph_model/Graph_model.h5', 'r') as f:
     # Read metadata
     grid_name = f['metadata'].attrs['grid_name']
     base_mva = f['metadata'].attrs['base_mva']
@@ -270,7 +270,7 @@ with h5py.File('graph_model/IEEE39_RMS_Complete.h5', 'r') as f:
 
 ``python
 # Get all generator names
-with h5py.File('graph_model/IEEE39_RMS_Complete.h5', 'r') as f:
+with h5py.File('graph_model/Graph_model.h5', 'r') as f:
     gen_names = [n.decode() for n in f['dynamic_models/generators/names'][:]]
     print("Generators:", gen_names)
     
@@ -285,7 +285,7 @@ with h5py.File('graph_model/IEEE39_RMS_Complete.h5', 'r') as f:
 ### Iterating Through All Phases
 
 ``python
-with h5py.File('graph_model/IEEE39_RMS_Complete.h5', 'r') as f:
+with h5py.File('graph_model/Graph_model.h5', 'r') as f:
     for phase_name in ['phase_a', 'phase_b', 'phase_c']:
         voltages = f[f'phases/{phase_name}/nodes/voltages_pu'][:]
         print(f"{phase_name}: Avg voltage = {np.mean(voltages):.3f} pu")
@@ -363,7 +363,7 @@ Pm = Pref + (1/R) * (ω - ω) - Dt * (ω - ω)
 python graph_exporter_demo.py
 ``
 
-This creates `graph_model/IEEE39_RMS_Complete.h5` with:
+This creates `graph_model/Graph_model.h5` with:
 - All network data from scenario_0.h5
 - Complete ANDES-compatible dynamic parameters
 - Initial conditions for RMS simulation
@@ -488,7 +488,7 @@ assert 0.1 <= xd_prime.all() <= 0.5, "xd' out of range"
 
 ### Overview
 
-The current `IEEE39_RMS_Complete.h5` file is **production-ready for RMS simulation** but can be enhanced with additional data for advanced analysis. Below is a prioritized list of features to add later.
+The current `Graph_model.h5` file is **production-ready for RMS simulation** but can be enhanced with additional data for advanced analysis. Below is a prioritized list of features to add later.
 
 ---
 
@@ -874,7 +874,7 @@ graph_model/
  h5_writer.py                        # PowerGridH5Writer class
  graph_exporter.py                   # GraphToH5Exporter class (WIP)
  
- IEEE39_RMS_Complete.h5              # ✅ Main output file (production-ready)
+ Graph_model.h5                      # ✅ Main output file (production-ready)
  
  Graph_Explaination_README.md        # 📖 This file - main documentation
  H5_IMPLEMENTATION_STATUS.md         # 📊 Status vs Todo.md specification

@@ -2,7 +2,7 @@
 
 **Date:** October 19, 2025  
 **Reference:** Todo.md Section 2 (HDF5 Storage Format)  
-**Current File:** `graph_model/IEEE39_RMS_Complete.h5`
+**Current File:** `graph_model/Graph_model.h5`
 
 ---
 
@@ -242,7 +242,7 @@ This is for **Stage 5+** (Neural Network Integration) - Future research work to 
 
 ### ✅ **SUCCESS: RMS Simulation Ready**
 
-Your `IEEE39_RMS_Complete.h5` file has **complete coverage** of the core requirements from Todo.md Section 2 for RMS dynamic simulation:
+Your `Graph_model.h5` file has **complete coverage** of the core requirements from Todo.md Section 2 for RMS dynamic simulation:
 
 1. ✅ **All required dynamic parameters** (generators, exciters, governors)
 2. ✅ **Complete network topology** (39 buses, 46 branches, 3 phases)

@@ -44,6 +44,11 @@ class PowerGridH5Writer:
         self.mode = mode
         self.file = None
         
+    @classmethod
+    def default_filename(cls) -> str:
+        """Return a recommended default filename for graph model exports."""
+        return 'graph_model/Graph_model.h5'
+        
     def __enter__(self):
         """Context manager entry"""
         self.file = h5py.File(self.filepath, self.mode)
@@ -64,7 +69,11 @@ class PowerGridH5Writer:
                        base_frequency_hz: float,
                        num_buses: int,
                        num_phases: int = 3,
-                       description: str = ""):
+                       description: str = "",
+                       num_lines: Optional[int] = None,
+                       num_transformers: Optional[int] = None,
+                       num_generators: Optional[int] = None,
+                       num_loads: Optional[int] = None):
         """
         Write file metadata.
         
@@ -89,6 +98,15 @@ class PowerGridH5Writer:
         metadata_group.attrs['num_phases'] = num_phases
         if description:
             metadata_group.attrs['description'] = description
+        # Optional system counts for quick inspection
+        if num_lines is not None:
+            metadata_group.attrs['num_lines'] = num_lines
+        if num_transformers is not None:
+            metadata_group.attrs['num_transformers'] = num_transformers
+        if num_generators is not None:
+            metadata_group.attrs['num_generators'] = num_generators
+        if num_loads is not None:
+            metadata_group.attrs['num_loads'] = num_loads
         
         logger.info("✓ Metadata written")
     

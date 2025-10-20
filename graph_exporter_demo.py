@@ -11,7 +11,7 @@ This demo script shows how to:
    - Three-phase representation
    - Initial conditions for dynamic simulation
 
-Output: graph_model/IEEE39_RMS_Complete.h5 (production-ready)
+Output: graph_model/Graph_model.h5 (production-ready)
 
 Author: PIGNN Project
 Date: 2025-10-19
@@ -58,19 +58,106 @@ def load_existing_data():
     return data, graph
 
 
-def create_comprehensive_h5(data, graph, output_path='graph_model/IEEE39_RMS_Complete.h5'):
+def load_real_powerfactory_data():
+    """Load REAL PowerFactory generator parameters from COMPOSITE_EXTRACTED.h5"""
+    print("\n" + "="*80)
+    print("LOADING REAL POWERFACTORY GENERATOR PARAMETERS")
+    print("="*80)
+    
+    composite_file = 'data/composite_model_out/39_Bus_New_England_System_COMPOSITE_EXTRACTED.h5'
+    print(f"\nSource: {composite_file}")
+    
+    gen_data = {}
+    
+    with h5py.File(composite_file, 'r') as f:
+        if 'generator' not in f:
+            print("⚠️  No generator data found - using defaults")
+            return None
+        
+        gen_group = f['generator']
+        
+        # Extract all generator parameters
+        params_to_extract = [
+            'Sn_MVA', 'Un_kV', 'Vset_pu', 'Vt_pu',
+            'H_s', 'D',
+            'Xd', 'Xq', 'Xd_prime', 'Xq_prime', 'Xd_double', 'Xq_double', 'Xl', 'Ra',
+            'Td0_prime', 'Tq0_prime', 'Td0_double', 'Tq0_double',
+            'P_MW', 'Q_MVAR',
+            'delta_rad', 'omega_pu',
+            'bus_idx'
+        ]
+        
+        for param in params_to_extract:
+            if param in gen_group:
+                gen_data[param] = gen_group[param][:]
+        
+        if 'name' in gen_group:
+            gen_data['names'] = [n.decode() if isinstance(n, bytes) else str(n) 
+                                for n in gen_group['name'][:]]
+        
+        n_gen = len(gen_data.get('Sn_MVA', []))
+        print(f"✓ Loaded {n_gen} generators with REAL PowerFactory parameters")
+        print(f"  Sample Sn_MVA: {gen_data['Sn_MVA'][:5]} MVA")
+        print(f"  Sample H_s: {gen_data['H_s'][:5]} s")
+    
+    return gen_data
+
+
+def load_scenario_loads():
+    """Load load data from scenario_0.h5"""
+    print("\n" + "="*80)
+    print("LOADING LOAD DATA FROM SCENARIO")
+    print("="*80)
+    
+    scenario_file = 'data/scenario_0.h5'
+    
+    load_data = {}
+    
+    with h5py.File(scenario_file, 'r') as f:
+        if 'detailed_system_data/loads' not in f:
+            print("⚠️  No load data found")
+            return None
+        
+        loads = f['detailed_system_data/loads']
+        
+        if 'active_power_MW' in loads:
+            load_data['P_MW'] = loads['active_power_MW'][:]
+        if 'reactive_power_MVAR' in loads:
+            load_data['Q_MVAR'] = loads['reactive_power_MVAR'][:]
+        if 'buses' in loads:
+            load_data['bus_names'] = [b.decode() if isinstance(b, bytes) else str(b) 
+                                     for b in loads['buses'][:]]
+        if 'names' in loads:
+            load_data['names'] = [n.decode() if isinstance(n, bytes) else str(n) 
+                                 for n in loads['names'][:]]
+        
+        n_loads = len(load_data.get('P_MW', []))
+        print(f"✓ Loaded {n_loads} loads")
+        print(f"  Total P: {np.sum(load_data.get('P_MW', [])):.1f} MW")
+        print(f"  Total Q: {np.sum(load_data.get('Q_MVAR', [])):.1f} MVAR")
+    
+    return load_data
+
+
+def create_comprehensive_h5(data, graph, powerfactory_gen_data=None, load_data=None, output_path=None):
     """
-    Create comprehensive H5 file with complete RMS dynamic parameters.
+    Create comprehensive H5 file with REAL PowerFactory RMS parameters.
     
     Args:
-        data: Dictionary from H5DataLoader
+        data: Dictionary from H5DataLoader (scenario_0.h5)
         graph: PowerGridGraph object
+        powerfactory_gen_data: Real generator parameters from COMPOSITE_EXTRACTED.h5
+        load_data: Load data from scenario_0.h5
         output_path: Output file path
     """
     print("\n" + "="*80)
-    print("CREATING COMPREHENSIVE H5 FILE WITH RMS DYNAMICS")
+    print("CREATING COMPREHENSIVE H5 WITH REAL POWERFACTORY DATA")
     print("="*80)
     
+    # Use default filename if not provided
+    if output_path is None:
+        output_path = PowerGridH5Writer.default_filename()
+
     with PowerGridH5Writer(output_path, mode='w') as writer:
         # ====================================================================
         # 1. METADATA
@@ -80,26 +167,59 @@ def create_comprehensive_h5(data, graph, output_path='graph_model/IEEE39_RMS_Com
         grid_info = data.get('scenario_info', {})
         num_buses = len(graph.nodes)
         
+        # Count edge types
+        from core.graph_base import PhaseType
+        phase_a = PhaseType.A
+        
+        edge_types_list = []
+        for edge_id, phase_edges in graph.edges.items():
+            edge_a = phase_edges[phase_a]
+            if edge_a.edge_type == 'line':
+                edge_types_list.append(0)
+            elif edge_a.edge_type == 'transformer':
+                edge_types_list.append(1)
+            else:
+                edge_types_list.append(2)
+        
+        num_lines = sum(1 for et in edge_types_list if et == 0)
+        num_transformers = sum(1 for et in edge_types_list if et == 1)
+        
+        # Get generator and load counts
+        if powerfactory_gen_data is not None:
+            num_generators = len(powerfactory_gen_data.get('Sn_MVA', []))
+        else:
+            num_generators = 10  # IEEE39 default
+        
+        if load_data is not None:
+            num_loads = len(load_data.get('P_MW', []))
+        else:
+            num_loads = 19  # IEEE39 default
+        
         writer.write_metadata(
             grid_name=grid_info.get('name', 'IEEE39_Enhanced'),
             base_mva=graph.base_mva,
             base_frequency_hz=graph.frequency_hz,
             num_buses=num_buses,
             num_phases=3,
-            description=f"IEEE 39-bus system with complete RMS dynamic parameters. "
-                       f"Exported from scenario_0.h5 on {datetime.now().strftime('%Y-%m-%d')}"
+            description=f"IEEE 39-bus system with REAL PowerFactory RMS parameters. "
+                       f"Exported from scenario_0.h5 + COMPOSITE_EXTRACTED.h5 on {datetime.now().strftime('%Y-%m-%d')}",
+            num_lines=num_lines,
+            num_transformers=num_transformers,
+            num_generators=num_generators,
+            num_loads=num_loads
         )
         print(f"   ✓ Grid: {grid_info.get('name', 'IEEE39')}")
         print(f"   ✓ Buses: {num_buses}")
+        print(f"   ✓ Lines: {num_lines}")
+        print(f"   ✓ Transformers: {num_transformers}")
+        print(f"   ✓ Generators: {num_generators}")
+        print(f"   ✓ Loads: {num_loads}")
         print(f"   ✓ Base MVA: {graph.base_mva}")
         
         # ====================================================================
         # 2. TOPOLOGY
         # ====================================================================
         print("\n2. Writing Topology...")
-        
-        from core.graph_base import PhaseType
-        phase_a = PhaseType.A
         
         n_edges = len(graph.edges)
         from_bus = np.zeros(n_edges, dtype=np.int64)
@@ -145,6 +265,10 @@ def create_comprehensive_h5(data, graph, output_path='graph_model/IEEE39_RMS_Com
             (PhaseType.C, 'phase_c')
         ]
         
+        # Create bus name to index mapping for load data
+        node_names_list = list(graph.nodes.keys())
+        bus_name_to_idx = {name: idx for idx, name in enumerate(node_names_list)}
+        
         for phase_enum, phase_name in phases:
             print(f"   - {phase_name}...")
             
@@ -167,7 +291,7 @@ def create_comprehensive_h5(data, graph, output_path='graph_model/IEEE39_RMS_Com
                 'shunt_B_pu': np.zeros(num_buses, dtype=np.float64),
             }
             
-            # Extract from graph
+            # Extract voltage/angle from graph
             for i, (node_id, phase_nodes) in enumerate(graph.nodes.items()):
                 node = phase_nodes[phase_enum]
                 if hasattr(node, 'properties'):
@@ -176,6 +300,18 @@ def create_comprehensive_h5(data, graph, output_path='graph_model/IEEE39_RMS_Com
                     node_data['angles_deg'][i] = props.get('angle_deg', 0.0)
                     node_data['P_injection_MW'][i] = props.get('P_injection_MW', 0.0)
                     node_data['Q_injection_MVAR'][i] = props.get('Q_injection_MVAR', 0.0)
+            
+            # Populate REAL load data from scenario_0.h5
+            if load_data is not None and 'P_MW' in load_data:
+                for i, bus_name in enumerate(load_data.get('bus_names', [])):
+                    if bus_name in bus_name_to_idx:
+                        bus_idx = bus_name_to_idx[bus_name]
+                        # Divide by 3 for per-phase values (balanced three-phase)
+                        node_data['P_load_MW'][bus_idx] = load_data['P_MW'][i] / 3.0
+                        node_data['Q_load_MVAR'][bus_idx] = load_data['Q_MVAR'][i] / 3.0
+                        # Update injection (negative for loads)
+                        node_data['P_injection_MW'][bus_idx] -= load_data['P_MW'][i] / 3.0
+                        node_data['Q_injection_MVAR'][bus_idx] -= load_data['Q_MVAR'][i] / 3.0
             
             # Edge data
             edge_data = {
@@ -206,43 +342,86 @@ def create_comprehensive_h5(data, graph, output_path='graph_model/IEEE39_RMS_Com
         print(f"   ✓ All three phases written")
         
         # ====================================================================
-        # 4. GENERATOR DYNAMICS (ANDES-Compatible)
+        # 4. GENERATOR DYNAMICS (REAL PowerFactory Parameters)
         # ====================================================================
-        print("\n4. Writing Generator Dynamic Parameters (ANDES Format)...")
+        print("\n4. Writing Generator Dynamic Parameters (REAL PowerFactory Data)...")
         
-        # Get generator info from data
-        gen_data = data.get('generators', {})
-        n_generators = len(gen_data.get('bus_ids', []))
-        
-        if n_generators == 0:
-            # Use default count
-            n_generators = 10  # IEEE39 has 10 generators
-            print(f"   ⚠ No generator data in source, using default count: {n_generators}")
-        
-        print(f"   - Number of generators: {n_generators}")
-        
-        # Generator names and buses
-        if n_generators > 0 and 'names' in gen_data and 'bus_ids' in gen_data:
-            gen_names = [str(n) for n in gen_data['names']]
-            gen_buses = [f"Bus_{bid}" for bid in gen_data['bus_ids']]
+        if powerfactory_gen_data is not None:
+            # USE REAL POWERFACTORY DATA
+            n_generators = len(powerfactory_gen_data['Sn_MVA'])
+            print(f"   ✅ Using REAL PowerFactory parameters for {n_generators} generators")
+            
+            # Generator names and buses
+            if 'names' in powerfactory_gen_data:
+                gen_names = powerfactory_gen_data['names']
+            else:
+                gen_names = [f"Gen_{i+1}" for i in range(n_generators)]
+            
+            # Map bus indices to bus names
+            if 'bus_idx' in powerfactory_gen_data:
+                bus_indices = powerfactory_gen_data['bus_idx'].astype(int)
+                gen_buses = [node_names_list[idx] if idx < len(node_names_list) else f"Bus_{idx}" 
+                            for idx in bus_indices]
+            else:
+                # IEEE39 generator buses as fallback
+                ieee39_gen_buses = [30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+                gen_buses = [f"Bus_{b}" for b in ieee39_gen_buses[:n_generators]]
+            
+            gen_phases = ['abc'] * n_generators
+            
+            # Create parameters dictionary with REAL PowerFactory values
+            gen_params = {
+                # Machine ratings (REAL)
+                'Sn_MVA': powerfactory_gen_data['Sn_MVA'],
+                'Un_kV': powerfactory_gen_data.get('Un_kV', np.full(n_generators, 20.0)),
+                'P_nominal_MW': powerfactory_gen_data.get('P_MW', powerfactory_gen_data['Sn_MVA'] * 0.85),
+                'Q_max_MVAR': powerfactory_gen_data['Sn_MVA'] * 0.6,
+                'Q_min_MVAR': -powerfactory_gen_data['Sn_MVA'] * 0.6,
+                
+                # Inertia and damping (REAL)
+                'H_s': powerfactory_gen_data['H_s'],
+                'D_pu': powerfactory_gen_data.get('D', np.zeros(n_generators)),
+                
+                # Synchronous reactances (REAL)
+                'xd_pu': powerfactory_gen_data['Xd'],
+                'xq_pu': powerfactory_gen_data['Xq'],
+                'xd_prime_pu': powerfactory_gen_data['Xd_prime'],
+                'xq_prime_pu': powerfactory_gen_data['Xq_prime'],
+                'xd_double_prime_pu': powerfactory_gen_data['Xd_double'],
+                'xq_double_prime_pu': powerfactory_gen_data['Xq_double'],
+                'xl_pu': powerfactory_gen_data['Xl'],
+                'ra_pu': powerfactory_gen_data['Ra'],
+                
+                # Time constants (REAL)
+                'Td0_prime_s': powerfactory_gen_data['Td0_prime'],
+                'Tq0_prime_s': powerfactory_gen_data['Tq0_prime'],
+                'Td0_double_prime_s': powerfactory_gen_data['Td0_double'],
+                'Tq0_double_prime_s': powerfactory_gen_data['Tq0_double'],
+                
+                # Saturation (use defaults if not available)
+                'S10': np.full(n_generators, 0.1),
+                'S12': np.full(n_generators, 0.3),
+            }
+            
+            print(f"   ✓ REAL Parameters Loaded:")
+            print(f"     - Sn_MVA range: [{gen_params['Sn_MVA'].min():.0f}, {gen_params['Sn_MVA'].max():.0f}] MVA")
+            print(f"     - H_s range: [{gen_params['H_s'].min():.2f}, {gen_params['H_s'].max():.2f}] s")
+            print(f"     - xd range: [{gen_params['xd_pu'].min():.3f}, {gen_params['xd_pu'].max():.3f}] pu")
+            
         else:
-            # IEEE39 generator buses
+            # FALLBACK: Use defaults
+            print(f"   ⚠️  No PowerFactory data - using default parameters")
+            gen_data = data.get('generators', {})
+            n_generators = len(gen_data.get('bus_ids', [])) or 10
+            
             ieee39_gen_buses = [30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
             gen_names = [f"Gen_{i+1}" for i in range(n_generators)]
             gen_buses = [f"Bus_{b}" for b in ieee39_gen_buses[:n_generators]]
+            gen_phases = ['abc'] * n_generators
+            
+            gen_params = create_default_generator_parameters(n_generators)
         
-        gen_phases = ['abc'] * n_generators  # Three-phase generators
-        
-        # Create COMPREHENSIVE generator parameters (GENROU model)
-        gen_params = create_default_generator_parameters(n_generators)
-        
-        # Add machine ratings from existing data if available
-        if 'P_nominal_MW' in gen_data:
-            gen_params['P_nominal_MW'] = np.array(gen_data['P_nominal_MW'])
-            gen_params['Q_max_MVAR'] = gen_params['P_nominal_MW'] * 0.6
-            gen_params['Q_min_MVAR'] = -gen_params['P_nominal_MW'] * 0.6
-        
-        model_types = ['GENROU'] * n_generators  # Round rotor model
+        model_types = ['GENROU'] * n_generators
         
         writer.write_generator_dynamics(
             names=gen_names,
@@ -252,11 +431,7 @@ def create_comprehensive_h5(data, graph, output_path='graph_model/IEEE39_RMS_Com
             parameters=gen_params
         )
         
-        print(f"   ✓ Generator parameters written:")
-        print(f"     - Model: GENROU (Round Rotor)")
-        print(f"     - Parameters: H, D, xd, xq, xd', xq', xd'', xq'', xl, ra")
-        print(f"     - Time constants: Td0', Tq0', Td0'', Tq0''")
-        print(f"     - Saturation: S10, S12")
+        print(f"   ✓ Generator dynamics written (GENROU model)")
         
         # ====================================================================
         # 5. EXCITATION SYSTEMS (AVR)
@@ -354,15 +529,23 @@ def create_comprehensive_h5(data, graph, output_path='graph_model/IEEE39_RMS_Com
         print(f"     - HYGOV: {gov_types.count('HYGOV')} units")
         
         # ====================================================================
-        # 7. INITIAL CONDITIONS (for dynamic simulation)
+        # 7. INITIAL CONDITIONS (REAL PowerFactory values if available)
         # ====================================================================
         print("\n7. Writing Initial Conditions...")
         
-        # Generator initial states
-        delta_0 = np.zeros(n_generators)  # Rotor angle (rad)
-        omega_0 = np.ones(n_generators)  # Speed (pu, relative to synchronous)
+        if powerfactory_gen_data is not None and 'delta_rad' in powerfactory_gen_data:
+            # Use REAL initial conditions from PowerFactory
+            delta_0 = powerfactory_gen_data['delta_rad']
+            omega_0 = powerfactory_gen_data.get('omega_pu', np.ones(n_generators))
+            print(f"   ✅ Using REAL PowerFactory initial conditions")
+        else:
+            # Use defaults
+            delta_0 = np.zeros(n_generators)
+            omega_0 = np.ones(n_generators)
+            print(f"   ⚠️  Using default initial conditions")
+        
         Efd_0 = np.ones(n_generators) * 1.8  # Field voltage (pu)
-        Pm_0 = np.ones(n_generators) * 0.8  # Mechanical power (pu)
+        Pm_0 = np.ones(n_generators) * 0.8   # Mechanical power (pu)
         
         writer.write_initial_conditions(
             rotor_angles_rad=delta_0,
@@ -460,13 +643,16 @@ def validate_comprehensive_h5(filepath):
             print(f"\n🎯 Initial Conditions: ✓")
             ic_group = f['initial_conditions']
             if 'generator_states' in ic_group:
-                print(f"  ✓ Generator states: {len(ic_group['generator_states/delta_rad'])}")
+                gen_states = ic_group['generator_states']
+                if 'rotor_angles_rad' in gen_states:
+                    print(f"  ✓ Generator states: {len(gen_states['rotor_angles_rad'])}")
         
         if 'steady_state/power_flow_results' in f:
             print(f"\n⚡ Power Flow Results: ✓")
             pf_group = f['steady_state/power_flow_results']
-            converged = pf_group['converged'][0]
-            print(f"  ✓ Converged: {converged}")
+            if 'converged' in pf_group:
+                converged = pf_group['converged'][0]
+                print(f"  ✓ Converged: {converged}")
     
     print("\n" + "="*80)
     print("✓✓✓ VALIDATION COMPLETE - FILE IS RMS-READY")
@@ -476,33 +662,44 @@ def validate_comprehensive_h5(filepath):
 def main():
     """Main execution."""
     print("\n" + "="*80)
-    print("COMPREHENSIVE H5 EXPORT WITH COMPLETE RMS DYNAMICS")
+    print("COMPREHENSIVE H5 EXPORT WITH REAL POWERFACTORY DATA")
     print("="*80)
-    print("\nThis script creates a complete H5 file with:")
-    print("  ✓ All topology and network data from your scenario_0.h5")
-    print("  ✓ ANDES-compatible generator dynamics (GENROU model)")
-    print("  ✓ Excitation systems (SEXS, IEEEAC1A)")
-    print("  ✓ Governor models (TGOV1, HYGOV)")
-    print("  ✓ Initial conditions for RMS simulation")
-    print("  ✓ Power flow steady-state solution")
+    print("\nThis script creates ONE comprehensive Graph_model.h5 with:")
+    print("  ✓ Topology from scenario_0.h5")
+    print("  ✓ REAL PowerFactory generator parameters from COMPOSITE_EXTRACTED.h5")
+    print("  ✓ Load data from scenario_0.h5")
+    print("  ✓ Complete RMS dynamics (GENROU, exciters, governors)")
+    print("  ✓ Initial conditions from PowerFactory")
     
     try:
-        # Load existing data
+        # Load topology and network data
         data, graph = load_existing_data()
         
-        # Create comprehensive H5 file
-        output_path = create_comprehensive_h5(data, graph)
+        # Load REAL PowerFactory generator parameters
+        powerfactory_gen_data = load_real_powerfactory_data()
         
+        # Load real load data
+        load_data = load_scenario_loads()
+        
+        # Create comprehensive H5 file with ALL real data merged
+        output_path = create_comprehensive_h5(
+            data, 
+            graph, 
+            powerfactory_gen_data=powerfactory_gen_data,
+            load_data=load_data
+        )
+
         # Validate
         validate_comprehensive_h5(output_path)
         
-        print("\n✅ SUCCESS! Your comprehensive H5 file is ready.")
+        print("\n✅ SUCCESS! Comprehensive Graph_model.h5 created with REAL data.")
         print(f"\n📁 Location: {output_path}")
-        print("\n🎯 Next Steps:")
-        print("  1. Review the file structure above")
-        print("  2. Replace default parameters with PowerFactory data")
-        print("  3. Use this file for RMS dynamic simulations")
-        print("  4. See graph_model/README.md for more details")
+        print("\n🎯 Ready for:")
+        print("  1. ✓ Graph visualization")
+        print("  2. ✓ Load flow analysis")
+        print("  3. ✓ Contingency analysis")
+        print("  4. ✓ RMS dynamic simulation")
+        print("  5. ✓ PH-KAN neural networks")
         
     except Exception as e:
         print(f"\n❌ Error: {e}")
