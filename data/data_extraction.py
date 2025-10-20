@@ -84,14 +84,36 @@ def safe_get_class(obj):
 # ══════════════════════════════════════════════════════════════════════════════
 print("🔄 RUNNING POWER FLOW FOR INITIAL CONDITIONS...")
 ldf = app.GetFromStudyCase("ComLdf")
+load_flow_converged = False
 if ldf:
     result = ldf.Execute()
     if result == 0:
         print("✅ Power flow converged successfully\n")
+        load_flow_converged = True
     else:
         print(f"⚠️ Power flow did not converge (code {result})\n")
 else:
     print("⚠️ Load flow command not found\n")
+
+# ══════════════════════════════════════════════════════════════════════════════
+# COLLECT LOAD FLOW RESULTS (IF CONVERGED)
+# ══════════════════════════════════════════════════════════════════════════════
+load_flow_results = None
+if load_flow_converged:
+    print("📊 COLLECTING LOAD FLOW RESULTS...")
+    load_flow_results = {
+        'bus_voltages_pu': [],
+        'bus_angles_deg': [],
+        'bus_names': [],
+        'gen_P_MW': [],
+        'gen_Q_MVAR': [],
+        'gen_bus_idx': [],
+        'gen_names': [],
+        'load_P_MW': [],
+        'load_Q_MVAR': [],
+        'load_bus_idx': [],
+        'load_names': []
+    }
 
 # ══════════════════════════════════════════════════════════════════════════════
 # COLLECT ELEMENTS
@@ -112,6 +134,117 @@ print(f"   🏭 Composite Models: {len(composite_models)}")
 
 nb = len(buses)
 idx = {b: i for i, b in enumerate(buses)}
+bus_name_to_idx = {safe_get_name(b): i for i, b in enumerate(buses)}
+
+# ══════════════════════════════════════════════════════════════════════════════
+# COLLECT LOAD FLOW RESULTS FROM BUSES (IF CONVERGED)
+# ══════════════════════════════════════════════════════════════════════════════
+if load_flow_converged and load_flow_results is not None:
+    print("\n📊 EXTRACTING LOAD FLOW RESULTS FROM BUSES...")
+    for bus in buses:
+        bus_name = safe_get_name(bus)
+        V_pu = get(bus, 'm:u', 1.0)  # Voltage magnitude in pu
+        theta_deg = get(bus, 'm:phiu', 0.0)  # Voltage angle in degrees
+        
+        load_flow_results['bus_names'].append(bus_name)
+        load_flow_results['bus_voltages_pu'].append(V_pu)
+        load_flow_results['bus_angles_deg'].append(theta_deg)
+    
+    print(f"   ✅ Collected {len(load_flow_results['bus_names'])} bus voltage results")
+    print(f"   📊 Voltage range: {min(load_flow_results['bus_voltages_pu']):.4f} - {max(load_flow_results['bus_voltages_pu']):.4f} pu")
+    
+    # Collect generator outputs
+    print("\n⚡ EXTRACTING GENERATOR OUTPUTS...")
+    
+    # Get all synchronous machines (they're inside composite models)
+    all_generators = app.GetCalcRelevantObjects("*.ElmSym")
+    
+    for gen_obj in all_generators:
+        gen_name = safe_get_name(gen_obj)
+        
+        # Get active and reactive power outputs (use result variables)
+        P_MW = get(gen_obj, 'm:P:bus1', 0.0)  # Active power output in MW
+        Q_MVAR = get(gen_obj, 'm:Q:bus1', 0.0)  # Reactive power output in MVAR
+        
+        # Get the grid bus (not cubicle!) - need to go through terminal
+        gen_bus = None
+        bus_attr_found = None
+        
+        # First try to get terminal
+        if has(gen_obj, 'bus1'):
+            terminal_or_cubicle = get(gen_obj, 'bus1')
+            if terminal_or_cubicle:
+                # If it's a cubicle, get its connected bus
+                if has(terminal_or_cubicle, 'cterm'):
+                    gen_bus = get(terminal_or_cubicle, 'cterm')
+                    bus_attr_found = 'bus1.cterm'
+                # If it's directly a terminal, get the bus
+                elif has(terminal_or_cubicle, 'cpSubstat') or has(terminal_or_cubicle, 'cBusBar'):
+                    gen_bus = get(terminal_or_cubicle, 'cpSubstat', None) or get(terminal_or_cubicle, 'cBusBar', None)
+                    bus_attr_found = 'bus1.terminal'
+                else:
+                    # It might already be a bus
+                    gen_bus = terminal_or_cubicle
+                    bus_attr_found = 'bus1'
+        
+        # Fallback: try cterm directly
+        if not gen_bus and has(gen_obj, 'cterm'):
+            gen_bus = get(gen_obj, 'cterm')
+            bus_attr_found = 'cterm'
+        
+        # Get bus index using object match first, then name match as fallback
+        bus_idx = idx.get(gen_bus, -1) if gen_bus else -1
+        gen_bus_name = safe_get_name(gen_bus) if gen_bus else "None"
+        
+        if bus_idx == -1 and gen_bus:
+            # Fallback: try matching by name
+            bus_idx = bus_name_to_idx.get(gen_bus_name, -1)
+        
+        load_flow_results['gen_names'].append(gen_name)
+        load_flow_results['gen_P_MW'].append(P_MW)
+        load_flow_results['gen_Q_MVAR'].append(Q_MVAR)
+        load_flow_results['gen_bus_idx'].append(bus_idx)
+    
+    print(f"   ✅ Collected {len(load_flow_results['gen_names'])} generator outputs")
+    if load_flow_results['gen_P_MW']:
+        total_gen = sum(load_flow_results['gen_P_MW'])
+        print(f"   ⚡ Total generation: {total_gen:.1f} MW")
+    
+    # Collect load demands
+    print("\n🔌 EXTRACTING LOAD DEMANDS...")
+    for load in loads:
+        load_name = safe_get_name(load)
+        P_MW = get(load, 'm:P:bus1', 0.0)  # Active power demand in MW
+        Q_MVAR = get(load, 'm:Q:bus1', 0.0)  # Reactive power demand in MVAR
+        
+        # Get bus - same logic as generators (navigate through cubicle to terminal)
+        load_bus = None
+        if has(load, 'bus1'):
+            terminal_or_cubicle = get(load, 'bus1')
+            # Check if it's a cubicle (has cterm attribute pointing to terminal)
+            if terminal_or_cubicle and has(terminal_or_cubicle, 'cterm'):
+                load_bus = get(terminal_or_cubicle, 'cterm')  # Get the terminal (grid bus)
+            else:
+                load_bus = terminal_or_cubicle  # Already the terminal
+        
+        # Get bus index using object match first, then name match as fallback
+        bus_idx = idx.get(load_bus, -1) if load_bus else -1
+        if bus_idx == -1 and load_bus:
+            # Fallback: try matching by name
+            load_bus_name = safe_get_name(load_bus)
+            bus_idx = bus_name_to_idx.get(load_bus_name, -1)
+
+
+        
+        load_flow_results['load_names'].append(load_name)
+        load_flow_results['load_P_MW'].append(P_MW)
+        load_flow_results['load_Q_MVAR'].append(Q_MVAR)
+        load_flow_results['load_bus_idx'].append(bus_idx)
+    
+    print(f"   ✅ Collected {len(load_flow_results['load_names'])} load demands")
+    if load_flow_results['load_P_MW']:
+        total_load = sum(load_flow_results['load_P_MW'])
+        print(f"   🔌 Total load: {total_load:.1f} MW")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # EXTRACTION FUNCTIONS
@@ -447,7 +580,15 @@ def simple_branch_imp(e):
             if Vbase > 0 and Sbase > 0:
                 Zbase = (Vbase * 1e3) ** 2 / (Sbase * 1e6)
                 return Rpu * Zbase, Xpu * Zbase
-    return 0.001, 0.01
+    
+    # Default values for IEEE 39-bus system (345 kV, 100 MVA base)
+    # These are realistic values instead of near-zero
+    # R_pu = 0.0035, X_pu = 0.0411 converted to ohms at 345 kV
+    V_base_kV = 345.0
+    Z_base_ohm = (V_base_kV ** 2) / SBASE_MVA  # = 1190.25 ohms
+    R_default = 0.0035 * Z_base_ohm  # ~4.17 ohms
+    X_default = 0.0411 * Z_base_ohm  # ~48.92 ohms
+    return R_default, X_default
 
 def term(obj):
     if not obj:
@@ -687,6 +828,34 @@ with h5py.File(h5_path, "w") as f:
     Y_grp.create_dataset("indices", data=Y.indices)
     Y_grp.create_dataset("indptr", data=Y.indptr)
     Y_grp.create_dataset("shape", data=Y.shape)
+    
+    # Save load flow results (if available)
+    if load_flow_results is not None:
+        lf_grp = f.create_group("load_flow_results")
+        
+        # Bus results
+        lf_grp.create_dataset("bus_voltages_pu", data=np.array(load_flow_results['bus_voltages_pu']))
+        lf_grp.create_dataset("bus_angles_deg", data=np.array(load_flow_results['bus_angles_deg']))
+        lf_grp.create_dataset("bus_names", data=[n.encode() for n in load_flow_results['bus_names']])
+        
+        # Generator results
+        lf_grp.create_dataset("gen_P_MW", data=np.array(load_flow_results['gen_P_MW']))
+        lf_grp.create_dataset("gen_Q_MVAR", data=np.array(load_flow_results['gen_Q_MVAR']))
+        lf_grp.create_dataset("gen_bus_idx", data=np.array(load_flow_results['gen_bus_idx']))
+        lf_grp.create_dataset("gen_names", data=[n.encode() for n in load_flow_results['gen_names']])
+        
+        # Load results
+        lf_grp.create_dataset("load_P_MW", data=np.array(load_flow_results['load_P_MW']))
+        lf_grp.create_dataset("load_Q_MVAR", data=np.array(load_flow_results['load_Q_MVAR']))
+        lf_grp.create_dataset("load_bus_idx", data=np.array(load_flow_results['load_bus_idx']))
+        lf_grp.create_dataset("load_names", data=[n.encode() for n in load_flow_results['load_names']])
+        
+        # Summary attributes
+        lf_grp.attrs['converged'] = True
+        lf_grp.attrs['total_generation_MW'] = float(sum(load_flow_results['gen_P_MW']))
+        lf_grp.attrs['total_generation_MVAR'] = float(sum(load_flow_results['gen_Q_MVAR']))
+        lf_grp.attrs['total_load_MW'] = float(sum(load_flow_results['load_P_MW']))
+        lf_grp.attrs['total_load_MVAR'] = float(sum(load_flow_results['load_Q_MVAR']))
 
 print(f"✅ Saved: {h5_path}")
 print(f"📊 Size: {os.path.getsize(h5_path) / 1024:.1f} KB")

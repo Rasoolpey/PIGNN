@@ -1,4 +1,0 @@
-scenario_id,description,contingency_type,outage_type,element_name,converged,iterations,max_voltage_error_pu,max_angle_error_deg,rms_voltage_error_pu,rms_angle_error_deg
-1,Line outage: Line 16 - 19,N-1,line,Line 16 - 19,False,1,0.0,0.0,0.0,0.0
-2,Line outage: Line 05 - 06,N-1,line,Line 05 - 06,False,1,0.0,0.0,0.0,0.0
-3,Line outage: Line 03 - 18,N-1,line,Line 03 - 18,False,1,0.0,0.0,0.0,0.0

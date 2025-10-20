@@ -2,9 +2,9 @@
 Graph Exporter Demo - Export Power Grid to Comprehensive H5 Format
 
 This demo script shows how to:
-1. Load existing scenario_0.h5 data
+1. Load data from COMPOSITE_EXTRACTED.h5 (PowerFactory export)
 2. Export to comprehensive H5 format v2.0 with complete RMS dynamics:
-   - All topology and network data from scenario_0.h5
+   - All topology and network data from COMPOSITE_EXTRACTED.h5
    - Complete ANDES-compatible generator dynamic parameters
    - Excitation system models (AVR/exciters)
    - Governor/turbine models
@@ -13,18 +13,16 @@ This demo script shows how to:
 
 Output: graph_model/Graph_model.h5 (production-ready)
 
+IMPORTANT: Uses ONLY COMPOSITE_EXTRACTED.h5 - no scenario_0.h5 needed!
+
 Author: PIGNN Project
-Date: 2025-10-19
+Date: 2025-10-20
 """
 
 import numpy as np
 import h5py
 from pathlib import Path
 from datetime import datetime
-
-# Import your existing loaders
-from data.h5_loader import H5DataLoader
-from data.graph_builder import GraphBuilder
 
 # Import the new H5 writer
 from graph_model import PowerGridH5Writer
@@ -35,120 +33,188 @@ from graph_model.h5_writer import (
 )
 
 
-def load_existing_data():
-    """Load data from existing scenario_0.h5 file."""
+def load_composite_data():
+    """
+    Load ALL data from COMPOSITE_EXTRACTED.h5 (PowerFactory export).
+    
+    This file contains everything we need:
+    - Topology (buses, edges)
+    - Loads
+    - Generators with REAL RMS parameters
+    - Control systems (AVR, GOV, PSS)
+    """
     print("="*80)
-    print("LOADING EXISTING GRID DATA")
+    print("LOADING DATA FROM COMPOSITE_EXTRACTED.h5")
     print("="*80)
     
-    input_file = 'data/scenario_0.h5'
-    print(f"\nLoading from: {input_file}")
+def load_composite_data():
+    """Load data from COMPOSITE_EXTRACTED.h5"""
+    composite_file = 'composite_model_out/39_Bus_New_England_System_COMPOSITE_EXTRACTED.h5'
+    print(f"\nSource: {composite_file}")
     
-    loader = H5DataLoader(input_file)
-    data = loader.load_all_data()
+    data = {
+        'buses': {},
+        'edges': {},
+        'loads': {},
+        'generators': {},
+        'control_systems': {}
+    }
     
-    # Build graph
-    builder = GraphBuilder()
-    graph = builder.build_from_h5_data(data)
+    with h5py.File(composite_file, 'r') as f:
+        # Buses
+        if 'bus' in f:
+            bus_group = f['bus']
+            data['buses'] = {
+                'names': [n.decode() if isinstance(n, bytes) else str(n) for n in bus_group['name'][:]],
+                'Un_kV': bus_group['Un_kV'][:],
+                'V_pu': bus_group['V_pu'][:],
+                'theta_deg': bus_group['theta_deg'][:],
+                'fn_Hz': bus_group['fn_Hz'][:]
+            }
+            print(f"✓ Loaded {len(data['buses']['names'])} buses")
+        
+        # Edges (lines + transformers combined)
+        if 'edge' in f:
+            edge_group = f['edge']
+            data['edges'] = {
+                'names': [n.decode() if isinstance(n, bytes) else str(n) for n in edge_group['name'][:]],
+                'from_bus': edge_group['from_idx'][:],
+                'to_bus': edge_group['to_idx'][:],
+                'R_ohm': edge_group['R_ohm'][:],
+                'X_ohm': edge_group['X_ohm'][:],
+                'B_uS': edge_group['B_uS'][:]
+            }
+            print(f"✓ Loaded {len(data['edges']['names'])} edges (lines + transformers)")
+        
+        # Loads
+        if 'load' in f:
+            load_group = f['load']
+            data['loads'] = {
+                'names': [n.decode() if isinstance(n, bytes) else str(n) for n in load_group['name'][:]],
+                'bus_idx': load_group['bus_idx'][:],
+                'P_MW': load_group['P_MW'][:],
+                'Q_MVAR': load_group['Q_MVAR'][:]
+            }
+            print(f"✓ Loaded {len(data['loads']['names'])} loads")
+            print(f"  Total P: {np.sum(data['loads']['P_MW']):.1f} MW")
+        
+        # Generators
+        if 'generator' in f:
+            gen_group = f['generator']
+            data['generators'] = {
+                'names': [n.decode() if isinstance(n, bytes) else str(n) for n in gen_group['name'][:]],
+                'bus_idx': gen_group['bus_idx'][:],
+                'Sn_MVA': gen_group['Sn_MVA'][:],
+                'Un_kV': gen_group['Un_kV'][:],
+                'H_s': gen_group['H_s'][:],
+                'D': gen_group['D'][:],
+                'Xd': gen_group['Xd'][:],
+                'Xq': gen_group['Xq'][:],
+                'Xd_prime': gen_group['Xd_prime'][:],
+                'Xq_prime': gen_group['Xq_prime'][:],
+                'Xd_double': gen_group['Xd_double'][:],
+                'Xq_double': gen_group['Xq_double'][:],
+                'Xl': gen_group['Xl'][:],
+                'Ra': gen_group['Ra'][:],
+                'Td0_prime': gen_group['Td0_prime'][:],
+                'Tq0_prime': gen_group['Tq0_prime'][:],
+                'Td0_double': gen_group['Td0_double'][:],
+                'Tq0_double': gen_group['Tq0_double'][:],
+                'P_MW': gen_group['P_MW'][:],
+                'Q_MVAR': gen_group['Q_MVAR'][:],
+                'Vset_pu': gen_group['Vset_pu'][:],
+                'Vt_pu': gen_group['Vt_pu'][:]
+            }
+            print(f"✓ Loaded {len(data['generators']['names'])} generators with REAL parameters")
+            print(f"  H_s range: {data['generators']['H_s'].min():.2f} - {data['generators']['H_s'].max():.2f} s")
+        
+        # Control systems (AVR, GOV, PSS)
+        if 'control_systems' in f:
+            data['control_systems'] = {}
+            cs_group = f['control_systems']
+            num_gens = cs_group.attrs.get('num_generators', 10)
+            
+            for i in range(num_gens):
+                gen_key = f'gen_{i}'
+                if gen_key in cs_group:
+                    data['control_systems'][gen_key] = {}
+                    gen_cs = cs_group[gen_key]
+                    
+                    # AVR
+                    if 'AVR' in gen_cs:
+                        avr = gen_cs['AVR']
+                        data['control_systems'][gen_key]['AVR'] = {
+                            'class': avr['class'][()].decode() if isinstance(avr['class'][()], bytes) else str(avr['class'][()]),
+                            'name': avr['name'][()].decode() if isinstance(avr['name'][()], bytes) else str(avr['name'][()]),
+                            'parameters': {k: v[()] for k, v in avr['parameters'].items()}
+                        }
+                    
+                    # GOV
+                    if 'GOV' in gen_cs:
+                        gov = gen_cs['GOV']
+                        data['control_systems'][gen_key]['GOV'] = {
+                            'class': gov['class'][()].decode() if isinstance(gov['class'][()], bytes) else str(gov['class'][()]),
+                            'name': gov['name'][()].decode() if isinstance(gov['name'][()], bytes) else str(gov['name'][()]),
+                            'parameters': {k: v[()] for k, v in gov['parameters'].items()}
+                        }
+            
+            print(f"✓ Loaded control systems for {len(data['control_systems'])} generators")
+        
+        # Load flow results (NEW: voltages and generator outputs from converged load flow)
+        if 'load_flow_results' in f:
+            lf_group = f['load_flow_results']
+            data['load_flow_results'] = {
+                'bus_voltages_pu': lf_group['bus_voltages_pu'][:],
+                'bus_angles_deg': lf_group['bus_angles_deg'][:],
+                'bus_names': [n.decode() if isinstance(n, bytes) else str(n) for n in lf_group['bus_names'][:]],
+                'gen_P_MW': lf_group['gen_P_MW'][:],
+                'gen_Q_MVAR': lf_group['gen_Q_MVAR'][:],
+                'gen_bus_idx': lf_group['gen_bus_idx'][:],
+                'gen_names': [n.decode() if isinstance(n, bytes) else str(n) for n in lf_group['gen_names'][:]],
+                'load_P_MW': lf_group['load_P_MW'][:],
+                'load_Q_MVAR': lf_group['load_Q_MVAR'][:],
+                'load_bus_idx': lf_group['load_bus_idx'][:],
+                'load_names': [n.decode() if isinstance(n, bytes) else str(n) for n in lf_group['load_names'][:]]
+            }
+            total_gen_P = np.sum(data['load_flow_results']['gen_P_MW'])
+            total_load_P = np.sum(data['load_flow_results']['load_P_MW'])
+            print(f"✓ Loaded load flow results")
+            print(f"  Total Generation: {total_gen_P:.1f} MW")
+            print(f"  Total Load: {total_load_P:.1f} MW")
+        else:
+            data['load_flow_results'] = None
+            print(f"⚠️ No load flow results found - generation will be zero!")
     
-    print(f"✓ Loaded grid:")
-    print(f"  - Buses: {len(graph.nodes)}")
-    print(f"  - Lines/Transformers: {len(graph.edges)}")
-    
-    return data, graph
+    return data
 
 
 def load_real_powerfactory_data():
-    """Load REAL PowerFactory generator parameters from COMPOSITE_EXTRACTED.h5"""
-    print("\n" + "="*80)
-    print("LOADING REAL POWERFACTORY GENERATOR PARAMETERS")
-    print("="*80)
-    
-    composite_file = 'data/composite_model_out/39_Bus_New_England_System_COMPOSITE_EXTRACTED.h5'
-    print(f"\nSource: {composite_file}")
-    
-    gen_data = {}
-    
-    with h5py.File(composite_file, 'r') as f:
-        if 'generator' not in f:
-            print("⚠️  No generator data found - using defaults")
-            return None
-        
-        gen_group = f['generator']
-        
-        # Extract all generator parameters
-        params_to_extract = [
-            'Sn_MVA', 'Un_kV', 'Vset_pu', 'Vt_pu',
-            'H_s', 'D',
-            'Xd', 'Xq', 'Xd_prime', 'Xq_prime', 'Xd_double', 'Xq_double', 'Xl', 'Ra',
-            'Td0_prime', 'Tq0_prime', 'Td0_double', 'Tq0_double',
-            'P_MW', 'Q_MVAR',
-            'delta_rad', 'omega_pu',
-            'bus_idx'
-        ]
-        
-        for param in params_to_extract:
-            if param in gen_group:
-                gen_data[param] = gen_group[param][:]
-        
-        if 'name' in gen_group:
-            gen_data['names'] = [n.decode() if isinstance(n, bytes) else str(n) 
-                                for n in gen_group['name'][:]]
-        
-        n_gen = len(gen_data.get('Sn_MVA', []))
-        print(f"✓ Loaded {n_gen} generators with REAL PowerFactory parameters")
-        print(f"  Sample Sn_MVA: {gen_data['Sn_MVA'][:5]} MVA")
-        print(f"  Sample H_s: {gen_data['H_s'][:5]} s")
-    
-    return gen_data
+    """
+    DEPRECATED: Data now loaded directly from COMPOSITE_EXTRACTED.h5 in load_composite_data()
+    Keeping for backward compatibility.
+    """
+    return None
 
 
 def load_scenario_loads():
-    """Load load data from scenario_0.h5"""
-    print("\n" + "="*80)
-    print("LOADING LOAD DATA FROM SCENARIO")
-    print("="*80)
-    
-    scenario_file = 'data/scenario_0.h5'
-    
-    load_data = {}
-    
-    with h5py.File(scenario_file, 'r') as f:
-        if 'detailed_system_data/loads' not in f:
-            print("⚠️  No load data found")
-            return None
-        
-        loads = f['detailed_system_data/loads']
-        
-        if 'active_power_MW' in loads:
-            load_data['P_MW'] = loads['active_power_MW'][:]
-        if 'reactive_power_MVAR' in loads:
-            load_data['Q_MVAR'] = loads['reactive_power_MVAR'][:]
-        if 'buses' in loads:
-            load_data['bus_names'] = [b.decode() if isinstance(b, bytes) else str(b) 
-                                     for b in loads['buses'][:]]
-        if 'names' in loads:
-            load_data['names'] = [n.decode() if isinstance(n, bytes) else str(n) 
-                                 for n in loads['names'][:]]
-        
-        n_loads = len(load_data.get('P_MW', []))
-        print(f"✓ Loaded {n_loads} loads")
-        print(f"  Total P: {np.sum(load_data.get('P_MW', [])):.1f} MW")
-        print(f"  Total Q: {np.sum(load_data.get('Q_MVAR', [])):.1f} MVAR")
-    
-    return load_data
+    """
+    DEPRECATED: Data now loaded directly from COMPOSITE_EXTRACTED.h5 in load_composite_data()
+    Keeping for backward compatibility.
+    """
+    return None
 
 
-def create_comprehensive_h5(data, graph, powerfactory_gen_data=None, load_data=None, output_path=None):
+def create_comprehensive_h5(data, graph, powerfactory_gen_data=None, load_data=None, output_path=None, composite_data=None):
     """
     Create comprehensive H5 file with REAL PowerFactory RMS parameters.
     
     Args:
-        data: Dictionary from H5DataLoader (scenario_0.h5)
+        data: Dictionary from H5DataLoader (scenario_0.h5 format)
         graph: PowerGridGraph object
         powerfactory_gen_data: Real generator parameters from COMPOSITE_EXTRACTED.h5
-        load_data: Load data from scenario_0.h5
+        load_data: Load data
         output_path: Output file path
+        composite_data: Full composite data including load_flow_results (NEW!)
     """
     print("\n" + "="*80)
     print("CREATING COMPREHENSIVE H5 WITH REAL POWERFACTORY DATA")
@@ -301,17 +367,35 @@ def create_comprehensive_h5(data, graph, powerfactory_gen_data=None, load_data=N
                     node_data['P_injection_MW'][i] = props.get('P_injection_MW', 0.0)
                     node_data['Q_injection_MVAR'][i] = props.get('Q_injection_MVAR', 0.0)
             
-            # Populate REAL load data from scenario_0.h5
-            if load_data is not None and 'P_MW' in load_data:
-                for i, bus_name in enumerate(load_data.get('bus_names', [])):
-                    if bus_name in bus_name_to_idx:
-                        bus_idx = bus_name_to_idx[bus_name]
+            # Populate REAL load and generation data from load flow results
+            if composite_data is not None and composite_data.get('load_flow_results') is not None:
+                lf = composite_data['load_flow_results']
+                
+                # Populate loads
+                loads_populated = 0
+                for i, load_name in enumerate(lf['load_names']):
+                    load_bus_idx = lf['load_bus_idx'][i]
+                    if 0 <= load_bus_idx < num_buses:
                         # Divide by 3 for per-phase values (balanced three-phase)
-                        node_data['P_load_MW'][bus_idx] = load_data['P_MW'][i] / 3.0
-                        node_data['Q_load_MVAR'][bus_idx] = load_data['Q_MVAR'][i] / 3.0
+                        node_data['P_load_MW'][load_bus_idx] = lf['load_P_MW'][i] / 3.0
+                        node_data['Q_load_MVAR'][load_bus_idx] = lf['load_Q_MVAR'][i] / 3.0
                         # Update injection (negative for loads)
-                        node_data['P_injection_MW'][bus_idx] -= load_data['P_MW'][i] / 3.0
-                        node_data['Q_injection_MVAR'][bus_idx] -= load_data['Q_MVAR'][i] / 3.0
+                        node_data['P_injection_MW'][load_bus_idx] -= lf['load_P_MW'][i] / 3.0
+                        node_data['Q_injection_MVAR'][load_bus_idx] -= lf['load_Q_MVAR'][i] / 3.0
+                        loads_populated += 1
+                
+                # Populate generation
+                for i, gen_name in enumerate(lf['gen_names']):
+                    gen_bus_idx = lf['gen_bus_idx'][i]
+                    if 0 <= gen_bus_idx < num_buses:
+                        # Divide by 3 for per-phase values (balanced three-phase)
+                        node_data['P_generation_MW'][gen_bus_idx] = lf['gen_P_MW'][i] / 3.0
+                        node_data['Q_generation_MVAR'][gen_bus_idx] = lf['gen_Q_MVAR'][i] / 3.0
+                        # Update injection (positive for generation)
+                        node_data['P_injection_MW'][gen_bus_idx] += lf['gen_P_MW'][i] / 3.0
+                        node_data['Q_injection_MVAR'][gen_bus_idx] += lf['gen_Q_MVAR'][i] / 3.0
+            else:
+                print(f"      ⚠️  No load_flow_results found - load/generation will be zero!")
             
             # Edge data
             edge_data = {
@@ -662,37 +746,132 @@ def validate_comprehensive_h5(filepath):
 def main():
     """Main execution."""
     print("\n" + "="*80)
-    print("COMPREHENSIVE H5 EXPORT WITH REAL POWERFACTORY DATA")
+    print("COMPREHENSIVE H5 EXPORT - COMPOSITE_EXTRACTED.h5 ONLY")
     print("="*80)
-    print("\nThis script creates ONE comprehensive Graph_model.h5 with:")
-    print("  ✓ Topology from scenario_0.h5")
-    print("  ✓ REAL PowerFactory generator parameters from COMPOSITE_EXTRACTED.h5")
-    print("  ✓ Load data from scenario_0.h5")
+    print("\nThis script creates ONE comprehensive Graph_model.h5 from:")
+    print("  ✓ COMPOSITE_EXTRACTED.h5 (ALL data - topology, loads, generators, RMS)")
     print("  ✓ Complete RMS dynamics (GENROU, exciters, governors)")
     print("  ✓ Initial conditions from PowerFactory")
+    print("\n  NO scenario_0.h5 needed!")
     
     try:
-        # Load topology and network data
-        data, graph = load_existing_data()
+        # Load ALL data from COMPOSITE_EXTRACTED.h5
+        data = load_composite_data()
         
-        # Load REAL PowerFactory generator parameters
-        powerfactory_gen_data = load_real_powerfactory_data()
+        # Build graph from the composite data
+        print("\n" + "="*80)
+        print("BUILDING GRAPH FROM COMPOSITE DATA")
+        print("="*80)
         
-        # Load real load data
-        load_data = load_scenario_loads()
+        from data.h5_loader import H5DataLoader
+        from data.graph_builder import GraphBuilder
         
-        # Create comprehensive H5 file with ALL real data merged
+        # The load_composite_data already has everything in the right format
+        # We just need to build the graph
+        builder = GraphBuilder()
+        
+        # Convert composite data format to h5_loader format
+        h5_format_data = {
+            'buses': {
+                'names': data['buses']['names'],
+                'base_voltages_kV': data['buses']['Un_kV'],  # Fix: capital V
+                'voltages_pu': data['buses']['V_pu'],
+                'voltage_angles_deg': data['buses']['theta_deg']  # Fix: use correct key name
+            },
+            'lines': [],  # Will be populated from edges
+            'transformers': [],  # Will be populated from edges
+            'generators': {}
+        }
+        
+        # Convert generator data format - add bus names and P/Q from load_flow_results
+        gen_bus_names = [data['buses']['names'][int(idx)] for idx in data['generators']['bus_idx']]
+        
+        # Get P/Q from load_flow_results if available
+        if 'load_flow_results' in data and data['load_flow_results']:
+            gen_P_MW = data['load_flow_results']['gen_P_MW']
+            gen_Q_MVAR = data['load_flow_results']['gen_Q_MVAR']
+        else:
+            # Fallback to zero if no load flow results
+            gen_P_MW = np.zeros(len(data['generators']['names']))
+            gen_Q_MVAR = np.zeros(len(data['generators']['names']))
+        
+        h5_format_data['generators'] = {
+            'names': data['generators']['names'],
+            'buses': gen_bus_names,  # Bus names, not indices
+            'active_power_MW': gen_P_MW,
+            'reactive_power_MVAR': gen_Q_MVAR,
+            'V_rated_kV': data['generators']['Un_kV']
+        }
+        
+        # Split edges into lines and transformers based on naming convention
+        lines_list = []
+        transformers_list = []
+        
+        for i, name in enumerate(data['edges']['names']):
+            from_bus_idx = int(data['edges']['from_bus'][i])
+            to_bus_idx = int(data['edges']['to_bus'][i])
+            
+            # Convert bus indices to bus names
+            from_bus_name = data['buses']['names'][from_bus_idx] if 0 <= from_bus_idx < len(data['buses']['names']) else f"Bus_{from_bus_idx}"
+            to_bus_name = data['buses']['names'][to_bus_idx] if 0 <= to_bus_idx < len(data['buses']['names']) else f"Bus_{to_bus_idx}"
+            
+            edge_dict = {
+                'name': name,
+                'from_bus': from_bus_name,  # Bus name, not index
+                'to_bus': to_bus_name,      # Bus name, not index
+                'R_ohm': float(data['edges']['R_ohm'][i]),
+                'X_ohm': float(data['edges']['X_ohm'][i]),
+                'B_uS': float(data['edges']['B_uS'][i])
+            }
+            
+            # Simple heuristic: transformers usually have 'T' or 'TR' in name
+            if 'T ' in name or 'TR' in name or name.startswith('T'):
+                transformers_list.append(edge_dict)
+            else:
+                lines_list.append(edge_dict)
+        
+        # Convert lists to dict format expected by graph builder
+        if lines_list:
+            h5_format_data['lines'] = {
+                'names': [line['name'] for line in lines_list],
+                'from_buses': [line['from_bus'] for line in lines_list],
+                'to_buses': [line['to_bus'] for line in lines_list],
+                'R_ohm': np.array([line['R_ohm'] for line in lines_list]),
+                'X_ohm': np.array([line['X_ohm'] for line in lines_list]),
+                'B_uS': np.array([line['B_uS'] for line in lines_list])
+            }
+        
+        if transformers_list:
+            h5_format_data['transformers'] = {
+                'names': [tr['name'] for tr in transformers_list],
+                'from_buses': [tr['from_bus'] for tr in transformers_list],
+                'to_buses': [tr['to_bus'] for tr in transformers_list],
+                'R_ohm': np.array([tr['R_ohm'] for tr in transformers_list]),
+                'X_ohm': np.array([tr['X_ohm'] for tr in transformers_list]),
+                'rating_MVA': np.full(len(transformers_list), 100.0),  # Default rating
+                'V_primary_kV': np.array([data['buses']['Un_kV'][data['buses']['names'].index(tr['from_bus'])] for tr in transformers_list]),
+                'V_secondary_kV': np.array([data['buses']['Un_kV'][data['buses']['names'].index(tr['to_bus'])] for tr in transformers_list])
+            }
+        
+        print(f"  ✓ Lines: {len(h5_format_data['lines'])}")
+        print(f"  ✓ Transformers: {len(h5_format_data['transformers'])}")
+        
+        graph = builder.build_from_h5_data(h5_format_data)
+        print(f"  ✓ Graph built: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
+        
+        # Create comprehensive H5 file with real PowerFactory parameters AND load flow results
         output_path = create_comprehensive_h5(
-            data, 
-            graph, 
-            powerfactory_gen_data=powerfactory_gen_data,
-            load_data=load_data
+            data=h5_format_data,
+            graph=graph,
+            powerfactory_gen_data=data.get('generators'),
+            load_data=data.get('loads'),
+            composite_data=data  # Pass full composite data with load_flow_results
         )
 
         # Validate
         validate_comprehensive_h5(output_path)
         
-        print("\n✅ SUCCESS! Comprehensive Graph_model.h5 created with REAL data.")
+        print("\n✅ SUCCESS! Comprehensive Graph_model.h5 created from COMPOSITE_EXTRACTED.h5.")
         print(f"\n📁 Location: {output_path}")
         print("\n🎯 Ready for:")
         print("  1. ✓ Graph visualization")

@@ -50,6 +50,9 @@ class GraphBuilder:
         self._add_generators(graph, data.get('generators', {}), data.get('buses', {}))
         self._add_loads(graph, data.get('loads', {}), data.get('buses', {}))
         
+        # Set power injections for load flow solver (must be after generators and loads)
+        self._set_power_injections(graph)
+        
         # Build edges
         self._add_lines(graph, data.get('lines', {}))
         self._add_transformers(graph, data.get('transformers', {}))
@@ -271,8 +274,17 @@ class GraphBuilder:
                 edge.X_ohm = X_total
                 edge.B_total_uS = B_total
                 
+                # Convert to per-unit for load flow solver
+                # Assume 345 kV base for impedance conversion
+                V_base_kV = 345.0
+                Z_base_ohm = (V_base_kV ** 2) / self.base_mva
+                edge.properties['R_pu'] = R_total / Z_base_ohm
+                edge.properties['X_pu'] = X_total / Z_base_ohm
+                edge.properties['B_pu'] = B_total * 1e-6 * Z_base_ohm  # Convert μS to pu
+                
                 if i < len(line_data.get('rating_MVA', [])):
                     edge.rating_MVA = line_data['rating_MVA'][i]
+                    edge.properties['rating_MVA'] = line_data['rating_MVA'][i]
                 if i < len(line_data.get('length_km', [])):
                     edge.length_km = line_data['length_km'][i]
             
@@ -309,8 +321,16 @@ class GraphBuilder:
                 edge.R_ohm = trafo_data['R_ohm'][i]
                 edge.X_ohm = trafo_data['X_ohm'][i]
                 
+                # Convert to per-unit for load flow solver
+                V_base_kV = 345.0  # Typical for high voltage side
+                Z_base_ohm = (V_base_kV ** 2) / self.base_mva
+                edge.properties['R_pu'] = trafo_data['R_ohm'][i] / Z_base_ohm
+                edge.properties['X_pu'] = trafo_data['X_ohm'][i] / Z_base_ohm
+                edge.properties['B_pu'] = 0.0  # Transformers typically have negligible shunt admittance
+                
                 # Set ratings
                 edge.rating_MVA = trafo_data['rating_MVA'][i]
+                edge.properties['rating_MVA'] = trafo_data['rating_MVA'][i]
                 edge.V_primary_kV = trafo_data['V_primary_kV'][i]
                 edge.V_secondary_kV = trafo_data['V_secondary_kV'][i]
                 
@@ -321,8 +341,13 @@ class GraphBuilder:
                 # Set winding configuration
                 if i < len(trafo_data.get('winding_config', [])):
                     edge.winding_config = trafo_data['winding_config'][i]
+                else:
+                    edge.winding_config = 'YNyn'  # Default winding configuration
+                    
                 if i < len(trafo_data.get('phase_shift_deg', [])):
                     edge.phase_shift_deg = trafo_data['phase_shift_deg'][i]
+                else:
+                    edge.phase_shift_deg = 0.0  # Default no phase shift
             
             # Calculate per-unit impedance
             Z_base = (edge.V_primary_kV ** 2) / edge.rating_MVA
@@ -366,3 +391,46 @@ class GraphBuilder:
                 else:
                     node.properties['shunt_G_pu'] = Y_pu.real
                     node.properties['shunt_B_pu'] = Y_pu.imag
+    
+    def _set_power_injections(self, graph: PowerGridGraph):
+        """
+        Set P_injection_pu and Q_injection_pu in node.properties for load flow solver.
+        This method must be called AFTER generators and loads are added.
+        
+        The load flow solver expects power injections in per-unit on the system base (100 MVA).
+        Generation is positive, load is negative.
+        """
+        S_base = self.base_mva  # 100 MVA
+        
+        nodes_with_gen = 0
+        nodes_with_load = 0
+        total_gen_mw = 0
+        total_load_mw = 0
+        
+        for bus_name, phases in graph.nodes.items():
+            for phase in PhaseType:
+                node = phases[phase]
+                
+                # Initialize to zero
+                P_inj_MW = 0.0
+                Q_inj_MVAR = 0.0
+                
+                # Add generation if this is a generator node
+                if node.node_type == 'generator' and hasattr(node, 'P_actual_MW'):
+                    P_inj_MW += node.P_actual_MW  # Positive for generation
+                    Q_inj_MVAR += node.Q_actual_MVAR
+                    nodes_with_gen += 1
+                    total_gen_mw += node.P_actual_MW
+                
+                # Subtract load if this is a load node or has load
+                if node.node_type == 'load' and hasattr(node, 'P_MW'):
+                    P_inj_MW -= node.P_MW  # Negative for load
+                    Q_inj_MVAR -= node.Q_MVAR
+                    nodes_with_load += 1
+                    total_load_mw += node.P_MW
+                
+                # Convert to per-unit
+                node.properties['P_injection_pu'] = P_inj_MW / S_base
+                node.properties['Q_injection_pu'] = Q_inj_MVAR / S_base
+        
+        print(f"      ✓ Set power injections: {nodes_with_gen} gen nodes ({total_gen_mw:.1f} MW), {nodes_with_load} load nodes ({total_load_mw:.1f} MW)")

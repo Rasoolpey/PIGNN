@@ -185,7 +185,7 @@ class ThreePhaseLoadFlowSolver:
     
     def solve(self, verbose: bool = True) -> LoadFlowResults:
         """
-        Solve the three-phase load flow problem.
+        Solve the three-phase load flow problem using PyPSA's approach.
         
         Args:
             verbose: Print iteration information
@@ -194,84 +194,82 @@ class ThreePhaseLoadFlowSolver:
             LoadFlowResults object
         """
         if verbose:
-            print("🔧 Starting Three-Phase Load Flow Analysis")
+            print("🔧 Starting Three-Phase Load Flow Analysis (PyPSA Method)")
             print(f"   • Total buses: {len(self.graph.nodes)}")
             print(f"   • PQ buses: {len(self.pq_buses)}")
             print(f"   • PV buses: {len(self.pv_buses)}")
             print(f"   • Slack buses: {len(self.slack_buses)}")
             print(f"   • System size: {self.Y_matrix.shape[0]} nodes")
         
-        # Initialize state vector
+        # Initialize voltages (all buses)
         V = self._initialize_voltages()
+        
+        # Get specified powers
+        S_spec = self._get_specified_powers()
+        
+        # Get bus indices
+        pq_idx, pv_idx, pvpq_idx, slack_idx = self._get_bus_indices()
+        
+        # Build initial state vector (unknowns only)
+        # state = [θ_pvpq, |V|_pq]
+        state = np.r_[
+            np.angle(V)[pvpq_idx],  # Angles for PV and PQ buses
+            np.abs(V)[pq_idx]        # Magnitudes for PQ buses only
+        ]
+        
+        if verbose:
+            n_pvpq = len(pvpq_idx)
+            n_pq = len(pq_idx)
+            print(f"   • State variables: {len(state)} ({n_pvpq} angles + {n_pq} magnitudes)")
+            print(f"   • Equations: {n_pvpq} P + {n_pq} Q = {n_pvpq + n_pq}")
+            print("\n📊 Iteration Progress:")
+            print("   Iter |  Max ΔP (MW) |  Max ΔQ (MVAR) |  Max |F|")
+            print("   -----|---------------|-----------------|-------------")
         
         # Newton-Raphson iterations
         converged = False
         iteration = 0
-        max_mismatch = float('inf')
-        previous_mismatch = float('inf')
-        
-        if verbose:
-            print("\n📊 Iteration Progress:")
-            print("   Iter |  Max ΔP (MW) |  Max ΔQ (MVAR) |  Max Mismatch | Accel Factor")
-            print("   -----|---------------|-----------------|---------------|-------------")
         
         for iteration in range(self.max_iterations):
-            # Calculate power mismatches
-            P_calc, Q_calc = self._calculate_power_injections(V)
-            P_spec, Q_spec = self._get_specified_powers()
+            # Reconstruct full voltage vector from state
+            V = self._update_voltage_from_state(V, state)
             
-            # Calculate mismatches
-            delta_P, delta_Q = self._calculate_mismatches(P_calc, Q_calc, P_spec, Q_spec)
+            # Calculate mismatch F = f(state)
+            F = self._calculate_power_mismatch(V, S_spec)
             
             # Check convergence
-            max_mismatch = max(np.max(np.abs(delta_P)), np.max(np.abs(delta_Q)))
-            
-            # Adaptive acceleration control
-            if iteration > 0:
-                if max_mismatch > previous_mismatch:
-                    # Diverging - reduce acceleration
-                    self.divergence_count += 1
-                    self.acceleration_factor = max(self.min_acceleration, 
-                                                 self.acceleration_factor * 0.7)
-                else:
-                    # Converging - can increase acceleration slightly
-                    self.divergence_count = 0
-                    self.acceleration_factor = min(self.max_acceleration,
-                                                 self.acceleration_factor * 1.05)
+            max_mismatch = np.max(np.abs(F))
             
             if verbose:
-                max_delta_p = np.max(np.abs(delta_P)) * self.graph.base_mva
-                max_delta_q = np.max(np.abs(delta_Q)) * self.graph.base_mva
-                print(f"   {iteration:4d} | {max_delta_p:12.6f} | {max_delta_q:14.6f} | "
-                      f"{max_mismatch:12.6f} | {self.acceleration_factor:10.3f}")
+                # Separate P and Q mismatches for display
+                n_pvpq = len(pvpq_idx)
+                max_delta_p = np.max(np.abs(F[:n_pvpq])) * self.graph.base_mva
+                max_delta_q = np.max(np.abs(F[n_pvpq:])) * self.graph.base_mva if len(F) > n_pvpq else 0.0
+                print(f"   {iteration:4d} | {max_delta_p:12.6f} | {max_delta_q:14.6f} | {max_mismatch:12.6f}")
             
             if max_mismatch < self.tolerance:
                 converged = True
                 break
             
-            # Break if diverging badly
-            if self.divergence_count > 5:
-                if verbose:
-                    print("   ❌ Excessive divergence detected - stopping")
-                break
+            # Build Jacobian matrix J = dF/dx
+            J = self._build_jacobian_pypsa(V)
             
-            # Build Jacobian matrix
-            J = self._build_jacobian(V)
-            
-            # Prepare mismatch vector
-            mismatch = self._prepare_mismatch_vector(delta_P, delta_Q)
-            
-            # Solve for corrections
+            # Solve linear system: J * Δx = F
             try:
-                delta_x = np.linalg.solve(J, mismatch)
-            except np.linalg.LinAlgError:
+                if sp.issparse(J):
+                    delta_x = sp.linalg.spsolve(J, F)
+                else:
+                    delta_x = np.linalg.solve(J, F)
+            except (np.linalg.LinAlgError, RuntimeError) as e:
                 if verbose:
-                    print("   ❌ Jacobian matrix is singular!")
+                    print(f"   ❌ Singular Jacobian matrix! {e}")
                 break
             
-            # Update voltages
-            previous_mismatch = max_mismatch
-            V = self._update_voltages(V, delta_x)
+            # Update state: x_new = x_old - Δx
+            state = state - delta_x
+        
+        # Final voltage reconstruction
+        V = self._update_voltage_from_state(V, state)
         
         # Calculate final power injections
         P_final, Q_final = self._calculate_power_injections(V)
@@ -357,11 +355,13 @@ class ThreePhaseLoadFlowSolver:
         
         return P, Q
     
-    def _get_specified_powers(self) -> Tuple[np.ndarray, np.ndarray]:
-        """Get specified power injections"""
+    def _get_specified_powers(self) -> np.ndarray:
+        """
+        Get specified complex power S = P + jQ for all buses.
+        Following PyPSA's approach: use complex power formulation.
+        """
         n_nodes = len(self.y_builder.node_to_index)
-        P_spec = np.zeros(n_nodes)
-        Q_spec = np.zeros(n_nodes)
+        S_spec = np.zeros(n_nodes, dtype=complex)
         
         for node_id, phase_nodes in self.graph.nodes.items():
             for phase in PhaseType:
@@ -370,11 +370,198 @@ class ThreePhaseLoadFlowSolver:
                     idx = self.y_builder.node_to_index[node_phase_id]
                     node = phase_nodes[phase]
                     
-                    # Get power injection from node properties
-                    P_spec[idx] = node.properties.get('P_injection_pu', 0.0)
-                    Q_spec[idx] = node.properties.get('Q_injection_pu', 0.0)
+                    # Get power injection from node properties (in per-unit)
+                    P_pu = node.properties.get('P_injection_pu', 0.0)
+                    Q_pu = node.properties.get('Q_injection_pu', 0.0)
+                    S_spec[idx] = P_pu + 1j * Q_pu
         
-        return P_spec, Q_spec
+        return S_spec
+    
+    def _get_bus_indices(self) -> Tuple[List[int], List[int], List[int], List[int]]:
+        """
+        Get phase node indices for different bus types.
+        Returns: (pq_indices, pv_indices, pvpq_indices, slack_indices)
+        
+        Following PyPSA: indices are for PHASE nodes (e.g., 'Bus01_a'), not buses.
+        """
+        pq_indices = []
+        pv_indices = []
+        slack_indices = []
+        
+        # PQ bus indices
+        for node_id in self.pq_buses:
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    pq_indices.append(idx)
+        
+        # PV bus indices  
+        for node_id in self.pv_buses:
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    pv_indices.append(idx)
+        
+        # Slack bus indices
+        for node_id in self.slack_buses:
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    slack_indices.append(idx)
+        
+        # PVPQ = PV + PQ (all non-slack buses)
+        pvpq_indices = pv_indices + pq_indices
+        
+        return pq_indices, pv_indices, pvpq_indices, slack_indices
+    
+    def _calculate_power_mismatch(self, V: np.ndarray, S_spec: np.ndarray) -> np.ndarray:
+        """
+        Calculate power mismatch following PyPSA's approach.
+        
+        Mismatch = V * conj(Y * V) - S_specified
+        
+        Build F vector as:
+        F = [real(mismatch)[non-slack],     # P mismatches (skip slack)
+             imag(mismatch)[pq_only]]        # Q mismatches (PQ buses only)
+        """
+        # Calculate injected power: S = V * conj(I) = V * conj(Y * V)
+        if sp.issparse(self.Y_matrix):
+            I = self.Y_matrix @ V
+        else:
+            I = self.Y_matrix @ V
+        
+        S_calc = V * np.conj(I)
+        
+        # Complex power mismatch
+        mismatch = S_calc - S_spec
+        
+        # Get bus indices
+        pq_idx, pv_idx, pvpq_idx, slack_idx = self._get_bus_indices()
+        
+        # Build mismatch vector F
+        # P mismatches: all non-slack buses (PV + PQ)
+        F_P = np.real(mismatch)[pvpq_idx]
+        
+        # Q mismatches: only PQ buses
+        F_Q = np.imag(mismatch)[pq_idx]
+        
+        # Concatenate
+        F = np.r_[F_P, F_Q]
+        
+        return F
+    
+    def _build_jacobian_pypsa(self, V: np.ndarray) -> sp.csr_matrix:
+        """
+        Build Jacobian matrix following PyPSA's elegant formulation.
+        
+        Uses complex matrix operations to compute:
+        dS/dθ and dS/d|V|
+        
+        Then extracts real and imaginary parts for P and Q equations.
+        """
+        n = len(V)
+        index = np.arange(n)
+        
+        # Calculate current injection
+        if sp.issparse(self.Y_matrix):
+            I = self.Y_matrix @ V
+        else:
+            I = self.Y_matrix @ V
+        
+        # Create diagonal matrices (convert to sparse for efficiency)
+        V_diag = sp.csr_matrix((V, (index, index)), shape=(n, n))
+        
+        # Avoid division by zero in V_norm_diag
+        V_abs = np.abs(V)
+        V_abs[V_abs < 1e-10] = 1e-10  # Prevent division by zero
+        V_norm_diag = sp.csr_matrix((V / V_abs, (index, index)), shape=(n, n))
+        
+        I_diag = sp.csr_matrix((I, (index, index)), shape=(n, n))
+        
+        # Convert Y to sparse if not already
+        if not sp.issparse(self.Y_matrix):
+            Y_sparse = sp.csr_matrix(self.Y_matrix)
+        else:
+            Y_sparse = self.Y_matrix
+        
+        # Compute derivatives using PyPSA's formulation
+        # dS/dθ = j * V_diag * conj(I_diag - Y * V_diag)
+        dS_dVa = 1j * V_diag @ np.conj(I_diag - Y_sparse @ V_diag)
+        
+        # dS/d|V| = V_norm_diag * conj(I_diag) + V_diag * conj(Y * V_norm_diag)
+        dS_dVm = V_norm_diag @ np.conj(I_diag) + V_diag @ np.conj(Y_sparse @ V_norm_diag)
+        
+        # Get bus indices
+        pq_idx, pv_idx, pvpq_idx, slack_idx = self._get_bus_indices()
+        
+        # Extract submatrices - use sparse matrix slicing
+        # J00: ∂P/∂θ for PV+PQ buses (rows: pvpq, cols: pvpq)
+        J00 = dS_dVa.real.tocsr()[pvpq_idx, :][:, pvpq_idx]
+        
+        # J01: ∂P/∂|V| for PV+PQ buses vs PQ buses (rows: pvpq, cols: pq)
+        J01 = dS_dVm.real.tocsr()[pvpq_idx, :][:, pq_idx]
+        
+        # J10: ∂Q/∂θ for PQ buses (rows: pq, cols: pvpq)
+        J10 = dS_dVa.imag.tocsr()[pq_idx, :][:, pvpq_idx]
+        
+        # J11: ∂Q/∂|V| for PQ buses (rows: pq, cols: pq)
+        J11 = dS_dVm.imag.tocsr()[pq_idx, :][:, pq_idx]
+        
+        # Assemble full Jacobian
+        # J = [[J00  J01]
+        #      [J10  J11]]
+        J = sp.vstack([
+            sp.hstack([J00, J01]),
+            sp.hstack([J10, J11])
+        ], format='csr')
+        
+        return J
+    
+    def _update_voltage_from_state(self, V: np.ndarray, state: np.ndarray) -> np.ndarray:
+        """
+        Reconstruct full voltage vector from state vector.
+        
+        State vector contains:
+        - state[0:n_pvpq]: angles for PV and PQ buses
+        - state[n_pvpq:]: magnitudes for PQ buses only
+        
+        Updates V in place for non-slack buses.
+        """
+        V_new = V.copy()
+        
+        pq_idx, pv_idx, pvpq_idx, slack_idx = self._get_bus_indices()
+        
+        n_pvpq = len(pvpq_idx)
+        n_pq = len(pq_idx)
+        
+        # Update angles for PV and PQ buses
+        theta = state[:n_pvpq]
+        for i, idx in enumerate(pvpq_idx):
+            V_mag = np.abs(V_new[idx])
+            V_new[idx] = V_mag * np.exp(1j * theta[i])
+        
+        # Update magnitudes for PQ buses only  
+        if n_pq > 0:
+            v_mag = state[n_pvpq:n_pvpq + n_pq]
+            for i, idx in enumerate(pq_idx):
+                theta_i = np.angle(V_new[idx])
+                V_new[idx] = v_mag[i] * np.exp(1j * theta_i)
+        
+        # Maintain PV bus voltage magnitudes at setpoint
+        for node_id in self.pv_buses:
+            for phase in PhaseType:
+                node_phase_id = f"{node_id}_{phase.value}"
+                if node_phase_id in self.y_builder.node_to_index:
+                    idx = self.y_builder.node_to_index[node_phase_id]
+                    node = self.graph.nodes[node_id][phase]
+                    v_setpoint = getattr(node, 'voltage_setpoint_pu', 1.0)
+                    theta_i = np.angle(V_new[idx])
+                    V_new[idx] = v_setpoint * np.exp(1j * theta_i)
+        
+        return V_new
     
     def _calculate_mismatches(self, P_calc: np.ndarray, Q_calc: np.ndarray, 
                             P_spec: np.ndarray, Q_spec: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -711,3 +898,102 @@ class ThreePhaseLoadFlowSolver:
         print(f"  • PQ buses: {len(self.pq_buses)} - {self.pq_buses}")
         print(f"  • PV buses: {len(self.pv_buses)} - {self.pv_buses}")
         print(f"  • Slack buses: {len(self.slack_buses)} - {self.slack_buses}")
+
+
+def run_load_flow_from_h5(h5_path: str, 
+                          tolerance: float = 1e-6,
+                          max_iterations: int = 50,
+                          save_to_h5: bool = True) -> LoadFlowResults:
+    """
+    Convenient wrapper to run load flow directly from Graph_model.h5
+    
+    This function:
+    1. Loads data from Graph_model.h5
+    2. Builds the power grid graph
+    3. Runs the three-phase load flow solver
+    4. Optionally saves results back to Graph_model.h5 (in steady_state/power_flow_results)
+    
+    Args:
+        h5_path: Path to Graph_model.h5 file
+        tolerance: Convergence tolerance
+        max_iterations: Maximum solver iterations
+        save_to_h5: If True, saves results to steady_state/power_flow_results group
+        
+    Returns:
+        LoadFlowResults object with converged solution
+        
+    Example:
+        >>> results = run_load_flow_from_h5('graph_model/Graph_model.h5')
+        >>> print(f"Converged: {results.converged}")
+        >>> print(f"Voltages: {results.voltage_magnitudes}")
+    """
+    import h5py
+    from data.h5_loader import H5DataLoader
+    from data.graph_builder import GraphBuilder
+    
+    # Step 1: Load data from H5
+    loader = H5DataLoader(h5_path)
+    data = loader.load_all_data()
+    
+    # Step 2: Build graph
+    builder = GraphBuilder()
+    graph = builder.build_from_h5_data(data)
+    
+    # Step 3: Run load flow
+    solver = ThreePhaseLoadFlowSolver(graph, tolerance=tolerance, max_iterations=max_iterations)
+    results = solver.solve()
+    
+    # Step 4: Save results to H5 if requested
+    if save_to_h5 and results.converged:
+        with h5py.File(h5_path, 'a') as f:
+            # Create steady_state group if it doesn't exist
+            if 'steady_state' not in f:
+                f.create_group('steady_state')
+            
+            # Create or overwrite power_flow_results
+            if 'steady_state/power_flow_results' in f:
+                del f['steady_state/power_flow_results']
+            
+            pf_group = f.create_group('steady_state/power_flow_results')
+            
+            # Save voltage results (extract phase A only for single-phase representation)
+            phase_a_indices = [i for i in range(0, len(results.voltages), 3)]  # Every 3rd index
+            V_mag_phase_a = results.voltage_magnitudes[phase_a_indices]
+            V_ang_phase_a = np.rad2deg(results.voltage_angles[phase_a_indices])
+            
+            pf_group.create_dataset('bus_voltages_pu', data=V_mag_phase_a)
+            pf_group.create_dataset('bus_angles_deg', data=V_ang_phase_a)
+            
+            # Save generator power outputs (sum across three phases)
+            num_buses = len(V_mag_phase_a)
+            gen_P_MW = np.zeros(num_buses)
+            gen_Q_MVAR = np.zeros(num_buses)
+            
+            # Aggregate generation by bus (P > 0 means generation)
+            for i, idx in enumerate(phase_a_indices):
+                # Sum power injection across all three phases for this bus
+                P_total = 0.0
+                Q_total = 0.0
+                for phase_offset in range(3):
+                    if idx + phase_offset < len(results.active_power):
+                        P_total += results.active_power[idx + phase_offset]
+                        Q_total += results.reactive_power[idx + phase_offset]
+                
+                # Only store positive (generation)
+                if P_total > 0:
+                    gen_P_MW[i] = P_total
+                    gen_Q_MVAR[i] = Q_total
+            
+            pf_group.create_dataset('gen_P_MW', data=gen_P_MW)
+            pf_group.create_dataset('gen_Q_MVAR', data=gen_Q_MVAR)
+            
+            # Save system totals
+            pf_group.attrs['total_generation_MW'] = np.sum(gen_P_MW)
+            pf_group.attrs['total_generation_MVAR'] = np.sum(gen_Q_MVAR)
+            pf_group.attrs['total_losses_MW'] = results.total_losses_mw
+            pf_group.attrs['total_losses_MVAR'] = results.total_losses_mvar
+            pf_group.attrs['converged'] = results.converged
+            pf_group.attrs['iterations'] = results.iterations
+            pf_group.attrs['max_mismatch'] = results.max_mismatch
+    
+    return results
