@@ -1,0 +1,99 @@
+control_systems:
+  avr_found: 9
+  governor_found: 9
+  pss_found: 9
+data_completeness:
+  critical_params_total: 120
+  critical_params_valid: 120
+  percentage: 100.0
+extraction_info:
+  date: '2025-10-20T13:31:48.801278'
+  method: composite_model_slot_extraction
+  project: 39 Bus New England System
+generators:
+- has_AVR: true
+  has_GOV: true
+  has_H: true
+  has_PSS: true
+  has_Td0_prime: true
+  has_xd: true
+  has_xd_prime: true
+  name: G 02
+- has_AVR: true
+  has_GOV: true
+  has_H: true
+  has_PSS: true
+  has_Td0_prime: true
+  has_xd: true
+  has_xd_prime: true
+  name: G 03
+- has_AVR: true
+  has_GOV: true
+  has_H: true
+  has_PSS: true
+  has_Td0_prime: true
+  has_xd: true
+  has_xd_prime: true
+  name: G 04
+- has_AVR: true
+  has_GOV: true
+  has_H: true
+  has_PSS: true
+  has_Td0_prime: true
+  has_xd: true
+  has_xd_prime: true
+  name: G 05
+- has_AVR: true
+  has_GOV: true
+  has_H: true
+  has_PSS: true
+  has_Td0_prime: true
+  has_xd: true
+  has_xd_prime: true
+  name: G 06
+- has_AVR: true
+  has_GOV: true
+  has_H: true
+  has_PSS: true
+  has_Td0_prime: true
+  has_xd: true
+  has_xd_prime: true
+  name: G 07
+- has_AVR: true
+  has_GOV: true
+  has_H: true
+  has_PSS: true
+  has_Td0_prime: true
+  has_xd: true
+  has_xd_prime: true
+  name: G 08
+- has_AVR: true
+  has_GOV: true
+  has_H: true
+  has_PSS: true
+  has_Td0_prime: true
+  has_xd: true
+  has_xd_prime: true
+  name: G 09
+- has_AVR: true
+  has_GOV: true
+  has_H: true
+  has_PSS: true
+  has_Td0_prime: true
+  has_xd: true
+  has_xd_prime: true
+  name: G 10
+- has_AVR: false
+  has_GOV: false
+  has_H: true
+  has_PSS: false
+  has_Td0_prime: true
+  has_xd: true
+  has_xd_prime: true
+  name: G 01
+network:
+  branches: 46
+  buses: 39
+  composite_models: 10
+  generators: 10
+  loads: 19
