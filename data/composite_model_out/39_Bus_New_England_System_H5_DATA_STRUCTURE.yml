@@ -2,7 +2,7 @@ file_info:
   filename: 39_Bus_New_England_System_COMPOSITE_EXTRACTED.h5
   format: HDF5
   purpose: Complete RMS dynamic simulation data
-  extraction_date: '2025-10-20T13:31:48.805283'
+  extraction_date: '2025-10-20T13:58:58.650697'
   data_completeness: 100.0%
 groups:
   metadata:

@@ -218,6 +218,16 @@ def extract_generator_complete(gen):
         gen_data['type_name'] = safe_get_name(typ)
         gen_data['type_params'] = extract_generator_type_rms_parameters(typ)
         
+        # FIX: Extract Sn_MVA and Un_kV from TYPE if not in instance
+        if np.isnan(gen_data['Sn_MVA']):
+            gen_data['Sn_MVA'] = get(typ, "sgn")
+        if np.isnan(gen_data['Un_kV']):
+            gen_data['Un_kV'] = get(typ, "ugn")
+        
+        # FIX: Extract Vset_pu from voltage controller if not set
+        if np.isnan(gen_data['Vset_pu']):
+            gen_data['Vset_pu'] = get(typ, "unom")  # Nominal voltage setpoint from type
+        
         if np.isnan(gen_data['H_s']):
             gen_data['H_s'] = gen_data['type_params'].get('H', np.nan)
     
@@ -231,6 +241,10 @@ def extract_generator_complete(gen):
             gen_data['Vt_pu'] = get(bus, "m:u")
             theta_deg = get(bus, "m:phiu")
             gen_data['theta_rad'] = np.radians(theta_deg) if not np.isnan(theta_deg) else np.nan
+            
+            # FIX: If Vset_pu still missing, use terminal voltage (steady-state assumption)
+            if np.isnan(gen_data['Vset_pu']) and not np.isnan(gen_data['Vt_pu']):
+                gen_data['Vset_pu'] = gen_data['Vt_pu']
     
     # Initial conditions
     gen_data['delta_rad'] = get(gen, 'delta')

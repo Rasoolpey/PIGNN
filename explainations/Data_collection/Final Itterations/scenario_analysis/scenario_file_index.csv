@@ -1,0 +1,31 @@
+scenario_number,filename,scenario_type,outage_element,description,power_balanced,balance_method
+0,scenario_000_baseline.h5,baseline,none,System baseline with power balance correction,True,initial_zero_generator_adjustment
+1,scenario_001_generator_G_03.h5,generator,G 03,Generator outage: G 03,True,restored_from_initial_balance
+2,scenario_002_generator_G_04.h5,generator,G 04,Generator outage: G 04,True,restored_from_initial_balance
+3,scenario_003_generator_G_05.h5,generator,G 05,Generator outage: G 05,True,restored_from_initial_balance
+4,scenario_004_generator_G_06.h5,generator,G 06,Generator outage: G 06,True,restored_from_initial_balance
+5,scenario_005_generator_G_07.h5,generator,G 07,Generator outage: G 07,True,restored_from_initial_balance
+6,scenario_006_generator_G_08.h5,generator,G 08,Generator outage: G 08,True,restored_from_initial_balance
+7,scenario_007_generator_G_09.h5,generator,G 09,Generator outage: G 09,True,restored_from_initial_balance
+8,scenario_008_generator_G_10.h5,generator,G 10,Generator outage: G 10,True,restored_from_initial_balance
+10,scenario_010_generator_G_02.h5,generator,G 02,Generator outage: G 02,True,restored_from_initial_balance
+11,scenario_011_line_Line_06___07.h5,line,Line 06 - 07,Line outage: Line 06 - 07,True,restored_from_initial_balance
+12,scenario_012_line_Line_06___11.h5,line,Line 06 - 11,Line outage: Line 06 - 11,True,restored_from_initial_balance
+13,scenario_013_line_Line_07___08.h5,line,Line 07 - 08,Line outage: Line 07 - 08,True,restored_from_initial_balance
+14,scenario_014_line_Line_08___09.h5,line,Line 08 - 09,Line outage: Line 08 - 09,True,restored_from_initial_balance
+15,scenario_015_line_Line_09___39.h5,line,Line 09 - 39,Line outage: Line 09 - 39,True,restored_from_initial_balance
+16,scenario_016_line_Line_10___11.h5,line,Line 10 - 11,Line outage: Line 10 - 11,True,restored_from_initial_balance
+17,scenario_017_line_Line_10___13.h5,line,Line 10 - 13,Line outage: Line 10 - 13,True,restored_from_initial_balance
+18,scenario_018_line_Line_13___14.h5,line,Line 13 - 14,Line outage: Line 13 - 14,True,restored_from_initial_balance
+19,scenario_019_line_Line_14___15.h5,line,Line 14 - 15,Line outage: Line 14 - 15,True,restored_from_initial_balance
+20,scenario_020_line_Line_15___16.h5,line,Line 15 - 16,Line outage: Line 15 - 16,True,restored_from_initial_balance
+21,scenario_021_load_Load_16.h5,load,Load 16,Load outage: Load 16,True,restored_from_initial_balance
+22,scenario_022_load_Load_18.h5,load,Load 18,Load outage: Load 18,True,restored_from_initial_balance
+23,scenario_023_load_Load_20.h5,load,Load 20,Load outage: Load 20,True,restored_from_initial_balance
+24,scenario_024_load_Load_21.h5,load,Load 21,Load outage: Load 21,True,restored_from_initial_balance
+25,scenario_025_load_Load_23.h5,load,Load 23,Load outage: Load 23,True,restored_from_initial_balance
+26,scenario_026_transformer_Trf_02___30.h5,transformer,Trf 02 - 30,Transformer outage: Trf 02 - 30,True,restored_from_initial_balance
+27,scenario_027_transformer_Trf_06___31.h5,transformer,Trf 06 - 31,Transformer outage: Trf 06 - 31,True,restored_from_initial_balance
+28,scenario_028_transformer_Trf_10___32.h5,transformer,Trf 10 - 32,Transformer outage: Trf 10 - 32,True,restored_from_initial_balance
+29,scenario_029_transformer_Trf_11___12.h5,transformer,Trf 11 - 12,Transformer outage: Trf 11 - 12,True,restored_from_initial_balance
+30,scenario_030_transformer_Trf_13___12.h5,transformer,Trf 13 - 12,Transformer outage: Trf 13 - 12,True,restored_from_initial_balance

@@ -56,6 +56,15 @@ explainations/andes-master/
 explainations/Contingency-Analysis-Python-Pwerfactory-main/
 explainations/ZonageModel-main/
 
+# Large CSV data files (RMS simulation outputs)
+explainations/Data_collection/data/*.csv
+explainations/Data_collection/Final Itterations/Sensitivity/sensitivity_out/*.npz
+explainations/Data_collection/Sensitivity/sensitivity_out/*.npz
+
+# Large H5 scenario files
+explainations/Data_collection/Final Itterations/scenario_analysis/*.h5
+explainations/Data_collection/contingency_analysis.7z
+
 # Large data files (optional - uncomment if needed)
 # *.h5
 # *.hdf5

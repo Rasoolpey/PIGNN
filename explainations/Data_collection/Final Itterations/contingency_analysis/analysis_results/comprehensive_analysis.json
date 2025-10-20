@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "analysis_date": "2025-07-29T11:20:06.004602",
+    "target_generator": "Generator 2",
+    "target_bus": 31,
+    "original_generation_MW": 0.0,
+    "baseline_convergence": true,
+    "contingency_convergence": true
+  },
+  "system_impact": {
+    "max_voltage_change_pu": 0.06694940459994614,
+    "max_angle_change_deg": 5.895313791293585,
+    "max_line_loading_percent": 99.90194292563224,
+    "critical_voltage_buses": [
+      "Bus 31"
+    ],
+    "overloaded_lines": [],
+    "voltage_violations": 1,
+    "loading_violations": 0
+  },
+  "sensitivity_analysis": {
+    "baseline_sensitivity_successful_buses": 27,
+    "contingency_sensitivity_successful_buses": 27,
+    "sensitivity_method": "numerical_differentiation_proper",
+    "perturbation_size_MW": 10.0,
+    "max_baseline_sensitivity": 2.6063965871780947e-05,
+    "max_contingency_sensitivity": 4.473091290889686e-05,
+    "sensitivity_change_metric": 0.00014137812627508961
+  },
+  "recommendations": {
+    "requires_rezoning": true,
+    "critical_monitoring_buses": [
+      "Bus 31"
+    ],
+    "generator_importance_ranking": "medium",
+    "sensitivity_analysis_quality": "high"
+  }
+}

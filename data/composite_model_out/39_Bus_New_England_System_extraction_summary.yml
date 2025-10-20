@@ -7,7 +7,7 @@ data_completeness:
   critical_params_valid: 120
   percentage: 100.0
 extraction_info:
-  date: '2025-10-20T13:31:48.801278'
+  date: '2025-10-20T13:58:58.646188'
   method: composite_model_slot_extraction
   project: 39 Bus New England System
 generators:

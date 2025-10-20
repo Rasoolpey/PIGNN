@@ -1,0 +1,364 @@
+metadata:
+  extraction_date: '2025-07-21T15:48:54.128467'
+  project_name: 39 Bus New England System
+  study_case: RMS_Simulation
+  base_mva: 100.0
+  system_type: hierarchical_plants
+  description: 39 Bus New England System with Complete Network Topology and Control
+    Systems
+network_statistics:
+  buses: 39
+  generators: 10
+  power_plants: 10
+  virtual_plants: 0
+  transmission_lines: 34
+  transformers: 12
+  total_edges: 46
+  valid_edges: 46
+  loads: 19
+  shunts: 2
+  y_matrix_nnz: 131
+  total_generation_mw: 5366.0
+  total_load_mw: 6097.100008964539
+control_systems_inventory:
+  avr_systems: 0
+  governor_systems: 0
+  pss_systems: 0
+  total_control_devices: 0
+  total_dsl_models: 0
+power_plants_summary:
+- name: Power Plant 02
+  type: thermal
+  generators: 1
+  capacity_mw: 0.0
+  control_systems: 3
+- name: Power Plant 03
+  type: thermal
+  generators: 1
+  capacity_mw: 650.0
+  control_systems: 3
+- name: Power Plant 04
+  type: thermal
+  generators: 1
+  capacity_mw: 632.0
+  control_systems: 3
+- name: Power Plant 05
+  type: thermal
+  generators: 1
+  capacity_mw: 254.0
+  control_systems: 3
+- name: Power Plant 06
+  type: thermal
+  generators: 1
+  capacity_mw: 650.0
+  control_systems: 3
+- name: Power Plant 07
+  type: thermal
+  generators: 1
+  capacity_mw: 560.0
+  control_systems: 3
+- name: Power Plant 08
+  type: thermal
+  generators: 1
+  capacity_mw: 540.0
+  control_systems: 3
+- name: Power Plant 09
+  type: thermal
+  generators: 1
+  capacity_mw: 830.0
+  control_systems: 3
+- name: Power Plant 10
+  type: thermal
+  generators: 1
+  capacity_mw: 250.0
+  control_systems: 3
+- name: Rest of U.S.A. / Canada
+  type: thermal
+  generators: 1
+  capacity_mw: 1000.0
+  control_systems: 0
+control_systems_details:
+- name: AVR 02
+  class: ElmDsl
+  type: AVR
+  parameters:
+    Ka: 6.2
+    Ta: 0.05
+    Ke: -0.633
+    Te: 0.405
+    Kf: 0.057
+    Tf: 0.5
+    Tr: 0.0
+    Vrmax: 1.0
+    Vrmin: -1.0
+- name: GOV 02
+  class: ElmDsl
+  type: Governor
+  parameters:
+    K: 5.0
+    T1: 0.2
+    T2: 1.0
+    T3: 0.6
+    Pmax: 1.0
+    Pmin: 0.0
+- name: PSS 02
+  class: ElmDsl
+  type: PSS
+  parameters:
+    Kpss: 0.5
+    T1: 5.0
+    T2: 0.4
+    T3: 1.0
+    T4: 0.1
+- name: AVR 03
+  class: ElmDsl
+  type: AVR
+  parameters:
+    Ka: 5.0
+    Ta: 0.06
+    Ke: -0.0198
+    Te: 0.5
+    Kf: 0.08
+    Tf: 1.0
+    Tr: 0.0
+    Vrmax: 1.0
+    Vrmin: -1.0
+- name: GOV 03
+  class: ElmDsl
+  type: Governor
+  parameters:
+    K: 5.0
+    T1: 0.2
+    T2: 1.0
+    T3: 0.6
+    Pmax: 1.0
+    Pmin: 0.0
+- name: PSS 03
+  class: ElmDsl
+  type: PSS
+  parameters:
+    Kpss: 0.5
+    T1: 3.0
+    T2: 0.2
+    T3: 2.0
+    T4: 0.2
+- name: AVR 04
+  class: ElmDsl
+  type: AVR
+  parameters:
+    Ka: 5.0
+    Ta: 0.06
+    Ke: -0.0525
+    Te: 0.5
+    Kf: 0.08
+    Tf: 1.0
+    Tr: 0.0
+    Vrmax: 1.0
+    Vrmin: -1.0
+- name: GOV 04
+  class: ElmDsl
+  type: Governor
+  parameters:
+    K: 5.0
+    T1: 0.2
+    T2: 1.0
+    T3: 0.6
+    Pmax: 1.0
+    Pmin: 0.0
+- name: PSS 04
+  class: ElmDsl
+  type: PSS
+  parameters:
+    Kpss: 2.0
+    T1: 1.0
+    T2: 0.1
+    T3: 1.0
+    T4: 0.3
+- name: AVR 05
+  class: ElmDsl
+  type: AVR
+  parameters:
+    Ka: 40.0
+    Ta: 0.02
+    Ke: 1.0
+    Te: 0.785
+    Kf: 0.03
+    Tf: 1.0
+    Tr: 0.0
+    Vrmax: 10.0
+    Vrmin: -10.0
+- name: GOV 05
+  class: ElmDsl
+  type: Governor
+  parameters:
+    K: 5.0
+    T1: 0.2
+    T2: 1.0
+    T3: 0.6
+    Pmax: 1.0
+    Pmin: 0.0
+- name: PSS 05
+  class: ElmDsl
+  type: PSS
+  parameters:
+    Kpss: 1.0
+    T1: 1.5
+    T2: 0.2
+    T3: 1.0
+    T4: 0.1
+- name: AVR 06
+  class: ElmDsl
+  type: AVR
+  parameters:
+    Ka: 5.0
+    Ta: 0.02
+    Ke: -0.0419
+    Te: 0.471
+    Kf: 0.0754
+    Tf: 1.246
+    Tr: 0.0
+    Vrmax: 1.0
+    Vrmin: -1.0
+- name: GOV 06
+  class: ElmDsl
+  type: Governor
+  parameters:
+    K: 5.0
+    T1: 0.2
+    T2: 1.0
+    T3: 0.6
+    Pmax: 1.0
+    Pmin: 0.0
+- name: PSS 06
+  class: ElmDsl
+  type: PSS
+  parameters:
+    Kpss: 4.0
+    T1: 0.5
+    T2: 0.1
+    T3: 0.5
+    T4: 0.05
+- name: AVR 07
+  class: ElmDsl
+  type: AVR
+  parameters:
+    Ka: 40.0
+    Ta: 0.02
+    Ke: 1.0
+    Te: 0.73
+    Kf: 0.03
+    Tf: 1.0
+    Tr: 0.0
+    Vrmax: 6.5
+    Vrmin: -6.5
+- name: GOV 07
+  class: ElmDsl
+  type: Governor
+  parameters:
+    K: 5.0
+    T1: 0.2
+    T2: 1.0
+    T3: 0.6
+    Pmax: 1.0
+    Pmin: 0.0
+- name: PSS 07
+  class: ElmDsl
+  type: PSS
+  parameters:
+    Kpss: 7.5
+    T1: 0.2
+    T2: 0.02
+    T3: 0.5
+    T4: 0.1
+- name: AVR 08
+  class: ElmDsl
+  type: AVR
+  parameters:
+    Ka: 5.0
+    Ta: 0.02
+    Ke: -0.047
+    Te: 0.528
+    Kf: 0.0854
+    Tf: 1.26
+    Tr: 0.0
+    Vrmax: 1.0
+    Vrmin: -1.0
+- name: GOV 08
+  class: ElmDsl
+  type: Governor
+  parameters:
+    K: 5.0
+    T1: 0.2
+    T2: 1.0
+    T3: 0.6
+    Pmax: 1.0
+    Pmin: 0.0
+- name: PSS 08
+  class: ElmDsl
+  type: PSS
+  parameters:
+    Kpss: 2.0
+    T1: 1.0
+    T2: 0.2
+    T3: 1.0
+    T4: 0.1
+- name: AVR 09
+  class: ElmDsl
+  type: AVR
+  parameters:
+    Ka: 40.0
+    Ta: 0.02
+    Ke: 1.0
+    Te: 1.4
+    Kf: 0.03
+    Tf: 1.0
+    Tr: 0.0
+    Vrmax: 10.5
+    Vrmin: -10.5
+- name: GOV 09
+  class: ElmDsl
+  type: Governor
+  parameters:
+    K: 5.0
+    T1: 0.2
+    T2: 1.0
+    T3: 0.6
+    Pmax: 1.0
+    Pmin: 0.0
+- name: PSS 09
+  class: ElmDsl
+  type: PSS
+  parameters:
+    Kpss: 2.0
+    T1: 1.0
+    T2: 0.5
+    T3: 2.0
+    T4: 0.1
+- name: AVR 10
+  class: ElmDsl
+  type: AVR
+  parameters:
+    Ka: 5.0
+    Ta: 0.06
+    Ke: -0.0485
+    Te: 0.25
+    Kf: 0.04
+    Tf: 1.0
+    Tr: 0.0
+    Vrmax: 1.0
+    Vrmin: -1.0
+- name: GOV 10
+  class: ElmDsl
+  type: Governor
+  parameters:
+    Pmax: 1.0
+    Pmin: 0.0
+- name: PSS 10
+  class: ElmDsl
+  type: PSS
+  parameters:
+    Kpss: 1.0
+    T1: 1.0
+    T2: 0.05
+    T3: 3.0
+    T4: 0.5

@@ -1,0 +1,11 @@
+gen_idx,gen_name,bus_name,P_MW,Q_MVAR,P_max_MW,P_min_MW,Q_max_MVAR,Q_min_MVAR,V_setpoint,in_service,is_slack
+0,G 01,Cub_1,1000.0,0.0,0,0,0,0,1.0,True,True
+1,G 02,Cub_1,0.0,0.0,0,0,0,0,1.0,False,False
+2,G 03,Cub_1,650.0,0.0,0,0,0,0,1.0,True,False
+3,G 04,Cub_1,632.0,0.0,0,0,0,0,1.0,True,False
+4,G 05,Cub_1,254.0,0.0,0,0,0,0,1.0,True,False
+5,G 06,Cub_1,650.0,0.0,0,0,0,0,1.0,True,False
+6,G 07,Cub_1,560.0,0.0,0,0,0,0,1.0,True,False
+7,G 08,Cub_1,540.0,0.0,0,0,0,0,1.0,True,False
+8,G 09,Cub_1,1611.0999755859375,0.0,0,0,0,0,1.0,True,True
+9,G 10,Cub_1,250.0,0.0,0,0,0,0,1.0,True,False

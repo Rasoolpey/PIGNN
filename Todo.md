@@ -6,6 +6,65 @@
 
 ---
 
+## ⚡ ANDES RMS Simulation Requirements
+
+### Current Data Status (✅ Complete)
+
+**Extracted from PowerFactory** (`data/composite_model_out/39_Bus_New_England_System_COMPOSITE_EXTRACTED.h5`):
+
+| Parameter Category | Status | Details |
+|-------------------|--------|---------|
+| Generator Dynamics | ✅ 100% | H, D, Xd, Xq, X'd, X"d, X'q, X"q, Td0', Tq0', Td0", Tq0", Ra, Xl |
+| Machine Base Values | ✅ 100% | Sn_MVA, Un_kV for all 10 generators |
+| Voltage Setpoints | ✅ 100% | Vset_pu from power flow |
+| Control Systems | ✅ 90% | 9/10 AVR, 9/10 GOV, 9/10 PSS (G01 missing) |
+| Operating Points | ✅ 100% | P_MW, Q_MVAR, Vt_pu, theta_rad, omega_pu |
+| Network Topology | ✅ 100% | 39 buses, 46 branches, admittance matrix |
+
+### Next Step: H5 → ANDES Conversion
+
+**Required ANDES Models:**
+
+1. **Bus** (39 buses):
+   - `idx`, `name`, `Vn` (kV), `v0` (pu), `a0` (rad)
+
+2. **Line** (46 branches):
+   - `bus1`, `bus2`, `r` (pu), `x` (pu), `b` (pu), `rate_a` (MVA)
+
+3. **PQ Load** (19 loads):
+   - `bus`, `p0` (pu), `q0` (pu)
+
+4. **GENROU** (10 generators - Round Rotor Model):
+   - `bus`, `Sn` (MVA), `Vn` (kV), `fn` (Hz)
+   - Mechanical: `M` (= 2*H), `D`
+   - Steady-state: `xd`, `xq`, `ra`
+   - Transient: `xd1` (X'd), `xq1` (X'q), `Td01` (Td0'), `Tq01` (Tq0')
+   - Subtransient: `xd2` (X"d), `xq2` (X"q), `Td02` (Td0"), `Tq02` (Tq0")
+   - Other: `xl` (leakage)
+
+5. **EXDC1** (9 AVR systems - DC Exciter):
+   - `syn` (generator idx), `Ka`, `Ta`, `Ke`, `Te`, `Kf`, `Tf`, `Vrmax`, `Vrmin`
+
+6. **TGOV1** (9 Governor systems - Simple Turbine Governor):
+   - `syn` (generator idx), `R` (droop), `T1`, `T2`, `T3`, `Pmax`, `Pmin`
+
+7. **STAB1** or **ST2CUT** (9 PSS systems):
+   - `syn` (generator idx), `Kw` (gain), `T1`, `T2`, `T3`, `T4`
+
+### Parameter Mapping Guide
+
+| H5 Parameter | ANDES GENROU | Notes |
+|--------------|--------------|-------|
+| `H_s` | `M` = 2*H | ANDES uses M (momentum) |
+| `Xd_prime` | `xd1` | Transient reactance |
+| `Xd_double` | `xd2` | Subtransient reactance |
+| `Td0_prime` | `Td01` | d-axis transient time constant |
+| `Td0_double` | `Td02` | d-axis subtransient time constant |
+
+**Reference:** ANDES documentation at `explainations/andes-master/docs/source/modelref.rst`
+
+---
+
 ## Table of Contents
 
 1. [Overview](#1-overview)

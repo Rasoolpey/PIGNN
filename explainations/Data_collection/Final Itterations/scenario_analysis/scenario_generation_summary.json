@@ -1,0 +1,74 @@
+{
+  "generation_info": {
+    "total_scenarios_attempted": 30,
+    "successful_scenarios": 29,
+    "failed_scenarios": 1,
+    "success_rate_percent": 96.7,
+    "baseline_included": true,
+    "power_balance_strategy": "single_initial_correction",
+    "balance_recalculated_per_scenario": false,
+    "scenario_filtering_applied": true,
+    "filtering_rules": "exclude_gen_gen_gen_load_load_load",
+    "generation_mode": "simple"
+  },
+  "power_balance_info": {
+    "initial_balance_success": true,
+    "balanced_generators_count": 1,
+    "baseline_total_pgen_MW": 0.0,
+    "baseline_total_pload_MW": 0.0,
+    "baseline_imbalance_MW": 0.0
+  },
+  "system_info": {
+    "project": "39 Bus New England System",
+    "study_case": "RMS_Simulation",
+    "num_buses": 39,
+    "num_edges": 0,
+    "successful_sensitivity_buses": 0
+  },
+  "scenario_breakdown": {
+    "single_scenarios": 30,
+    "double_scenarios": 0,
+    "total_scenarios_generated": 30
+  },
+  "failed_scenarios": [
+    [
+      "G 01",
+      "generator"
+    ]
+  ],
+  "generated_files": {
+    "baseline": "scenario_000_baseline.h5",
+    "consolidated": "39_Bus_New_England_System_scenarios_complete.h5",
+    "individual_scenarios": [
+      "scenario_001_generator_G_03.h5",
+      "scenario_002_generator_G_04.h5",
+      "scenario_003_generator_G_05.h5",
+      "scenario_004_generator_G_06.h5",
+      "scenario_005_generator_G_07.h5",
+      "scenario_006_generator_G_08.h5",
+      "scenario_007_generator_G_09.h5",
+      "scenario_008_generator_G_10.h5",
+      "scenario_010_generator_G_02.h5",
+      "scenario_011_line_Line_06___07.h5",
+      "scenario_012_line_Line_06___11.h5",
+      "scenario_013_line_Line_07___08.h5",
+      "scenario_014_line_Line_08___09.h5",
+      "scenario_015_line_Line_09___39.h5",
+      "scenario_016_line_Line_10___11.h5",
+      "scenario_017_line_Line_10___13.h5",
+      "scenario_018_line_Line_13___14.h5",
+      "scenario_019_line_Line_14___15.h5",
+      "scenario_020_line_Line_15___16.h5",
+      "scenario_021_load_Load_16.h5",
+      "scenario_022_load_Load_18.h5",
+      "scenario_023_load_Load_20.h5",
+      "scenario_024_load_Load_21.h5",
+      "scenario_025_load_Load_23.h5",
+      "scenario_026_transformer_Trf_02___30.h5",
+      "scenario_027_transformer_Trf_06___31.h5",
+      "scenario_028_transformer_Trf_10___32.h5",
+      "scenario_029_transformer_Trf_11___12.h5",
+      "scenario_030_transformer_Trf_13___12.h5"
+    ]
+  }
+}
