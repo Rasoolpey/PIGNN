@@ -697,7 +697,7 @@ def create_default_generator_parameters(n_generators: int) -> Dict[str, np.ndarr
 
 def create_default_exciter_parameters(n_generators: int, model_type: str = 'SEXS') -> Dict[str, np.ndarray]:
     """
-    Create default exciter parameters (SEXS - Simple Exciter).
+    Create default exciter parameters (SEXS or IEEEAC1A).
     
     Args:
         n_generators: Number of generators
@@ -710,10 +710,30 @@ def create_default_exciter_parameters(n_generators: int, model_type: str = 'SEXS
         return {
             'Ka': np.full(n_generators, 200.0),
             'Ta_s': np.full(n_generators, 0.05),
+            'Te_s': np.full(n_generators, 0.5),      # Exciter time constant
             'Tb_s': np.full(n_generators, 10.0),
             'Tc_s': np.full(n_generators, 1.0),
+            'Kf': np.full(n_generators, 0.0),        # No stabilizer for SEXS
+            'Tf_s': np.full(n_generators, 1.0),      # Dummy value (not used when Kf=0)
+            'Ke': np.full(n_generators, 1.0),        # Field circuit constant
+            'Vr_max': np.full(n_generators, 5.0),
+            'Vr_min': np.full(n_generators, -5.0),
             'Efd_max': np.full(n_generators, 5.0),
             'Efd_min': np.full(n_generators, -5.0),
+        }
+    elif model_type == 'IEEEAC1A':
+        # IEEE AC1A exciter (more detailed model)
+        return {
+            'Ka': np.full(n_generators, 400.0),      # Regulator gain
+            'Ta_s': np.full(n_generators, 0.02),     # Regulator time constant
+            'Ke': np.full(n_generators, 1.0),        # Exciter constant
+            'Te_s': np.full(n_generators, 0.8),      # Exciter time constant
+            'Kf': np.full(n_generators, 0.03),       # Stabilizer gain
+            'Tf_s': np.full(n_generators, 1.0),      # Stabilizer time constant
+            'Vr_max': np.full(n_generators, 7.3),    # Max regulator output
+            'Vr_min': np.full(n_generators, -7.3),   # Min regulator output
+            'Efd_max': np.full(n_generators, 6.0),   # Max field voltage
+            'Efd_min': np.full(n_generators, -6.0),  # Min field voltage
         }
     else:
         # Placeholder for other models
@@ -722,7 +742,7 @@ def create_default_exciter_parameters(n_generators: int, model_type: str = 'SEXS
 
 def create_default_governor_parameters(n_generators: int, model_type: str = 'TGOV1') -> Dict[str, np.ndarray]:
     """
-    Create default governor parameters (TGOV1 - Simple Governor).
+    Create default governor parameters (TGOV1 or HYGOV).
     
     Args:
         n_generators: Number of generators
@@ -739,6 +759,16 @@ def create_default_governor_parameters(n_generators: int, model_type: str = 'TGO
             'Tt_s': np.full(n_generators, 0.5),
             'Pmax_pu': np.full(n_generators, 1.0),
             'Pmin_pu': np.full(n_generators, 0.0),
+        }
+    elif model_type == 'HYGOV':
+        # Hydro governor model
+        return {
+            'R_pu': np.full(n_generators, 0.04),      # Droop
+            'Dt_pu': np.full(n_generators, 0.05),     # Damping
+            'Tg_s': np.full(n_generators, 0.5),       # Gate time constant
+            'Tt_s': np.full(n_generators, 0.1),       # Turbine time constant
+            'Pmax_pu': np.full(n_generators, 1.0),    # Max power
+            'Pmin_pu': np.full(n_generators, 0.0),    # Min power
         }
     else:
         return {}
