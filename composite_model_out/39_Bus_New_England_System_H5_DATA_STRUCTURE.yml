@@ -1,0 +1,154 @@
+file_info:
+  filename: 39_Bus_New_England_System_COMPOSITE_EXTRACTED.h5
+  format: HDF5
+  purpose: Complete RMS dynamic simulation data
+  extraction_date: '2025-10-20T19:27:54.056708'
+  data_completeness: 100.0%
+groups:
+  metadata:
+    description: File metadata and extraction information
+    datasets:
+      extraction_date: ISO timestamp of extraction
+      project_name: PowerFactory project name
+      num_generators: Total number of generators
+      num_composite_models: Number of composite models extracted
+  bus:
+    description: Bus/node data for all system buses
+    shape: (39, )
+    datasets:
+      name: Bus names (string)
+      Un_kV: Nominal voltage (kV)
+      fn_Hz: Nominal frequency (Hz)
+      area: Area number
+      V_pu: Voltage magnitude from power flow (pu)
+      theta_deg: Voltage angle from power flow (degrees)
+  edge:
+    description: Branch data (lines and transformers)
+    shape: (46, )
+    datasets:
+      from_idx: From bus index
+      to_idx: To bus index
+      name: Branch name (string)
+      R_ohm: Resistance (Ohm)
+      X_ohm: Reactance (Ohm)
+      B_uS: Susceptance (microSiemens)
+      tap_ratio: Transformer tap ratio (pu)
+      phi_deg: Transformer phase shift (degrees)
+      rate_MVA: Rating (MVA)
+      type_id: 'Type: 0=line, 1=transformer'
+  load:
+    description: Load data
+    shape: (19, )
+    datasets:
+      bus_idx: Connected bus index
+      name: Load name (string)
+      P_MW: Active power (MW)
+      Q_MVAR: Reactive power (MVAR)
+  generator:
+    description: Complete generator dynamic parameters
+    shape: (10, )
+    datasets:
+      name: Generator name (string)
+      bus_idx: Connected bus index
+      power_flow_results:
+        P_MW: Active power output (MW)
+        Q_MVAR: Reactive power output (MVAR)
+        Vset_pu: Voltage setpoint (pu)
+        Vt_pu: Terminal voltage magnitude (pu)
+        theta_rad: Terminal voltage angle (radians)
+      ratings:
+        Sn_MVA: Rated apparent power (MVA)
+        Un_kV: Rated voltage (kV)
+        cosn: Rated power factor
+      mechanical_parameters:
+        H_s: Inertia constant (seconds)
+        D: Damping coefficient (pu)
+      synchronous_reactances:
+        Xd: d-axis synchronous reactance (pu)
+        Xq: q-axis synchronous reactance (pu)
+      transient_reactances:
+        Xd_prime: d-axis transient reactance X'd (pu)
+        Xq_prime: q-axis transient reactance X'q (pu)
+      subtransient_reactances:
+        Xd_double: d-axis subtransient reactance X"d (pu)
+        Xq_double: q-axis subtransient reactance X"q (pu)
+      transient_time_constants:
+        Td0_prime: d-axis transient open-circuit time constant T'd0 (s)
+        Tq0_prime: q-axis transient open-circuit time constant T'q0 (s)
+      subtransient_time_constants:
+        Td0_double: d-axis subtransient open-circuit time constant T"d0 (s)
+        Tq0_double: q-axis subtransient open-circuit time constant T"q0 (s)
+      stator_parameters:
+        Ra: Armature resistance (pu)
+        Xl: Leakage reactance (pu)
+      initial_conditions:
+        delta_rad: Rotor angle (radians)
+        omega_pu: Rotor speed (pu)
+        Pm: Mechanical power (MW)
+  control_systems:
+    description: Control system parameters (AVR, Governor, PSS)
+    structure: 'Hierarchical: gen_0/AVR/parameters/Ka'
+    generator_groups:
+      gen_N:
+        generator_name: Name of generator
+        AVR:
+          name: AVR model name
+          class: PowerFactory class (ElmDsl)
+          parameters:
+            Ka: AVR gain
+            Ta: AVR time constant (s)
+            Ke: Exciter constant
+            Te: Exciter time constant (s)
+            Kf: Stabilizer gain
+            Tf: Stabilizer time constant (s)
+            Tr: Measurement delay (s)
+            Vrmax: Max regulator output (pu)
+            Vrmin: Min regulator output (pu)
+        GOV:
+          name: Governor model name
+          parameters:
+            K: Governor gain
+            T1_T7: Time constants (s)
+            K1_K8: Turbine stage factors
+            Pmax: Max power output (pu)
+            Pmin: Min power output (pu)
+            R: Droop (pu)
+        PSS:
+          name: PSS model name
+          parameters:
+            Kpss: PSS gain
+            Tw: Washout time constant (s)
+            T1_T4: Lead-lag time constants (s)
+            Vsmax: Max output (pu)
+            Vsmin: Min output (pu)
+  admittance:
+    description: Y-bus admittance matrix (sparse CSR format)
+    shape: (39, 39)
+    datasets:
+      data: Non-zero complex values
+      indices: Column indices
+      indptr: Row pointers
+      shape: Matrix dimensions
+      nnz: 'Number of non-zeros: 131'
+    note: Use scipy.sparse.csr_matrix to reconstruct
+usage_examples:
+  python:
+    load_file: "\nimport h5py\nimport numpy as np\nfrom scipy.sparse import csr_matrix\n\n# Open file\n\
+      with h5py.File('39_Bus_New_England_System_COMPOSITE_EXTRACTED.h5', 'r') as f:\n    # Read generator\
+      \ data\n    gen_names = f['generator']['name'][:]\n    H = f['generator']['H_s'][:]\n    Xd_prime\
+      \ = f['generator']['Xd_prime'][:]\n    \n    # Read AVR parameters for generator 0\n    Ka = f['control_systems']['gen_0']['AVR']['parameters']['Ka'][()]\n\
+      \    \n    # Reconstruct Y matrix\n    Y = csr_matrix(\n        (f['admittance']['data'][:],\n \
+      \        f['admittance']['indices'][:],\n         f['admittance']['indptr'][:]),\n        shape=f['admittance']['shape'][:]\n\
+      \    )\n"
+    access_control_params: "\n# Access AVR parameters for all generators\nfor i in range(num_gens):\n\
+      \    gen_name = f[f'control_systems/gen_{i}/generator_name'][()]\n    if 'AVR' in f[f'control_systems/gen_{i}']:\n\
+      \        Ka = f[f'control_systems/gen_{i}/AVR/parameters/Ka'][()]\n        Ta = f[f'control_systems/gen_{i}/AVR/parameters/Ta'][()]\n"
+notes:
+- All reactances are in per-unit (pu) on generator base
+- All time constants are in seconds
+- Power values are in MW/MVAR
+- Angles are in radians unless specified as degrees
+- Damping coefficient D uses typical value (2.0) if not found in PowerFactory
+- String datasets are stored as bytes (decode with .decode() in Python)
+- Sparse matrix uses CSR (Compressed Sparse Row) format
+- 'Data completeness: 100.0%'

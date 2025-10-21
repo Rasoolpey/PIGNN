@@ -49,7 +49,7 @@ def load_composite_data():
     
 def load_composite_data():
     """Load data from COMPOSITE_EXTRACTED.h5"""
-    composite_file = 'composite_model_out/39_Bus_New_England_System_COMPOSITE_EXTRACTED.h5'
+    composite_file = 'data/composite_model_out/39_Bus_New_England_System_COMPOSITE_EXTRACTED.h5'
     print(f"\nSource: {composite_file}")
     
     data = {

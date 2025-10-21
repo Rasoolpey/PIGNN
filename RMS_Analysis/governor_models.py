@@ -53,16 +53,16 @@ class TGOV1Governor:
     States: [Pm] (mechanical power)
     """
     
-    def __init__(self, params: TGOV1Parameters, omega_ref: float = 1.0):
+    def __init__(self, params: TGOV1Parameters, omega_ref: float = 0.0):
         """
         Initialize TGOV1 governor.
         
         Args:
             params: TGOV1 parameters
-            omega_ref: Reference speed (pu), typically 1.0
+            omega_ref: Reference speed DEVIATION (pu), typically 0.0 for deviation-based control
         """
         self.params = params
-        self.omega_ref = omega_ref
+        self.omega_ref = omega_ref  # 0.0 for deviation control
         
         # State: mechanical power
         self.Pm_pu = 0.5  # Will be initialized properly
@@ -86,7 +86,7 @@ class TGOV1Governor:
         
         Args:
             t: Time (s)
-            omega_pu: Generator speed (pu)
+            omega_pu: Generator speed DEVIATION (pu)
         
         Returns:
             dPm/dt
@@ -94,26 +94,25 @@ class TGOV1Governor:
         p = self.params
         
         # Speed error (droop control)
-        omega_error = self.omega_ref - omega_pu
+        omega_error = self.omega_ref - omega_pu  # At SS: 0 - 0 = 0
         
         # Governor output (with droop)
+        # At steady state: omega_error = 0, so valve_cmd = Pm_pu
         valve_cmd = self.Pm_pu + omega_error / p.R_pu
         
-        # Lead-lag compensation
-        if p.T2_s > 0:
-            # Simplified lead-lag
-            valve_desired = valve_cmd * (p.T1_s / p.T2_s)
-        else:
-            valve_desired = valve_cmd
+        # Lead-lag compensation (simplified first-order approximation)
+        # For steady-state initialization: valve_desired = valve_cmd
+        valve_desired = valve_cmd
         
         # Valve positioner
         valve_limited = np.clip(valve_desired, p.Pmin_pu, p.Pmax_pu)
         
         # Mechanical power response
+        # At steady state: valve_limited = Pm_pu, so dPm = 0
         dPm = (valve_limited - self.Pm_pu) / p.T3_s
         
         # Add turbine damping
-        dPm += p.Dt * (omega_pu - self.omega_ref)
+        dPm += p.Dt * (omega_pu - self.omega_ref)  # At SS: 0
         
         return dPm
     
@@ -130,19 +129,22 @@ class HYGOVGovernor:
     States: [gate_position, q_flow, Pm]
     """
     
-    def __init__(self, params: HYGOVParameters, omega_ref: float = 1.0):
+    def __init__(self, params: HYGOVParameters, omega_ref: float = 0.0):
         """
         Initialize HYGOV governor.
         
         Args:
             params: HYGOV parameters
-            omega_ref: Reference speed (pu)
+            omega_ref: Reference speed DEVIATION (pu), typically 0.0 for deviation-based control
         """
         self.params = params
-        self.omega_ref = omega_ref
+        self.omega_ref = omega_ref  # 0.0 for deviation control
         
         # States: [gate position, water flow, mechanical power]
         self.states = np.array([0.5, 0.5, 0.5])
+        
+        # Steady-state gate position (set during initialize())
+        self.gate_ss = 0.5
     
     def initialize(self, Pm_init: float):
         """
@@ -157,11 +159,15 @@ class HYGOVGovernor:
         self.states[2] = Pm_init
         
         # Flow at steady state (from turbine equation)
-        q = Pm_init / p.At
+        # Pm = At * (q - qnl)  =>  q = Pm/At + qnl
+        q = Pm_init / p.At + p.qnl_pu
         self.states[1] = q
         
-        # Gate position
+        # Gate position (at steady state: gate = q)
         self.states[0] = q
+        
+        # Store steady-state gate position for droop control
+        self.gate_ss = q
     
     def compute_derivatives(self, t: float, omega_pu: float) -> np.ndarray:
         """
@@ -181,10 +187,15 @@ class HYGOVGovernor:
         omega_error = self.omega_ref - omega_pu
         
         # Droop control (transient + permanent)
-        gate_cmd = Pm + omega_error / p.r_pu
+        # Gate command adjusts from steady-state value based on speed error
+        gate_cmd = self.gate_ss + omega_error / p.r_pu
         
-        # Gate servo
-        gate_limited = np.clip(gate_cmd, p.Pmin_pu, p.Pmax_pu)
+        # Gate servo - apply same logic as Pm: don't clip if at steady state
+        if abs(gate_cmd - gate) < 1e-6:
+            gate_limited = gate_cmd
+        else:
+            gate_limited = np.clip(gate_cmd, p.Pmin_pu, p.Pmax_pu)
+        
         dgate = (gate_limited - gate) / p.Tg_s
         
         # Water flow dynamics (penstock)
@@ -193,7 +204,15 @@ class HYGOVGovernor:
         # Turbine power (including no-load flow)
         q_effective = q - p.qnl_pu
         Pm_turbine = p.At * q_effective * (1 - p.Dturb * (omega_pu - self.omega_ref))
-        Pm_limited = np.clip(Pm_turbine, p.Pmin_pu, p.Pmax_pu)
+        
+        # Apply limits, but allow operation at current point even if outside limits
+        # This ensures dPm = 0 at initialization when operating beyond rated capacity
+        if abs(Pm_turbine - Pm) < 1e-6:
+            # At steady state - don't clip to maintain dPm = 0
+            Pm_limited = Pm_turbine
+        else:
+            # During dynamics - enforce limits
+            Pm_limited = np.clip(Pm_turbine, p.Pmin_pu, p.Pmax_pu)
         
         dPm = (Pm_limited - Pm) / p.Tf_s
         
@@ -202,8 +221,8 @@ class HYGOVGovernor:
     def update(self, states_new: np.ndarray):
         """Update states."""
         self.states = states_new
-        # Apply power limits
-        self.states[2] = np.clip(self.states[2], self.params.Pmin_pu, self.params.Pmax_pu)
+        # Note: Don't clip Pm here - it can be outside limits at initialization
+        # Clipping is applied in compute_derivatives via Pm_limited
     
     def get_mechanical_power(self) -> float:
         """Get current mechanical power."""

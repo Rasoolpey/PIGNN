@@ -433,4 +433,4 @@ class GraphBuilder:
                 node.properties['P_injection_pu'] = P_inj_MW / S_base
                 node.properties['Q_injection_pu'] = Q_inj_MVAR / S_base
         
-        print(f"      ✓ Set power injections: {nodes_with_gen} gen nodes ({total_gen_mw:.1f} MW), {nodes_with_load} load nodes ({total_load_mw:.1f} MW)")
+        print(f"      [OK] Set power injections: {nodes_with_gen} gen nodes ({total_gen_mw:.1f} MW), {nodes_with_load} load nodes ({total_load_mw:.1f} MW)")

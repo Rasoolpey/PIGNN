@@ -76,12 +76,14 @@ class SEXSExciter:
             Vt_pu: Terminal voltage (pu)
             Efd_init: Initial field voltage (pu)
         """
+        p = self.params
         self.Efd_pu = Efd_init
         
-        # Set Vref to maintain current voltage
-        self.Vref_pu = Vt_pu
+        # For steady state: dEfd/dt = 0 => Vr = Efd
+        # And Vr = K * (Vref - Vt), so: Vref = Vt + Efd / K
+        self.Vref_pu = Vt_pu + Efd_init / p.K
         
-        # Regulator output
+        # Regulator output (must equal Efd for zero derivative)
         self.Vr_pu = Efd_init
     
     def compute_derivative(self, t: float, Vt_pu: float) -> float:
@@ -145,26 +147,72 @@ class IEEEAC1AExciter:
     
     def initialize(self, Vt_pu: float, Efd_init: float):
         """
-        Initialize exciter from steady-state.
+        Initialize exciter from steady-state, handling saturation.
         
         Args:
             Vt_pu: Terminal voltage (pu)
-            Efd_init: Initial field voltage (pu)
+            Efd_init: Initial field voltage (pu from generator)
         """
         p = self.params
         
-        # Set field voltage
-        self.states[1] = Efd_init
+        # Stabilizer feedback at steady state: dVf/dt = 0
+        # => Vf = Kf*Efd/Tf (initially using generator's Efd)
+        Vf = p.Kf * Efd_init / p.Tf_s
         
-        # Regulator output to maintain Efd
-        Vr = Efd_init * (1 + p.Ke)
+        # At steady state: dEfd/dt = 0
+        # => Efd = Vr / (1 + Ke*Efd)
+        # => Vr = Efd * (1 + Ke*Efd)
+        Vr_unsaturated = Efd_init * (1 + p.Ke * Efd_init)
+        
+        # Check if Vr would saturate
+        if Vr_unsaturated > p.Vr_max:
+            # SATURATED case: Vr = Vr_max
+            Vr = p.Vr_max
+            
+            # Need to find Efd such that: Efd = Vr_max / (1 + Ke*Efd)
+            # => Efd + Ke*Efd^2 = Vr_max
+            # => Ke*Efd^2 + Efd - Vr_max = 0
+            # Solve quadratic: Efd = (-1 + sqrt(1 + 4*Ke*Vr_max)) / (2*Ke)
+            if p.Ke > 1e-6:
+                discriminant = 1 + 4 * p.Ke * Vr
+                Efd_saturated = (-1 + np.sqrt(discriminant)) / (2 * p.Ke)
+            else:
+                Efd_saturated = Vr  # If Ke ≈ 0
+            
+            # Use the saturated Efd
+            Efd = Efd_saturated
+            
+            # Recalculate Vf with correct Efd
+            Vf = p.Kf * Efd / p.Tf_s
+            
+            # Vref adjusted for saturation
+            self.Vref_pu = Vt_pu + Vf + Vr / p.Ka
+            
+        elif Vr_unsaturated < p.Vr_min:
+            # SATURATED (low) case: Vr = Vr_min
+            Vr = p.Vr_min
+            
+            # Solve for Efd with Vr_min
+            if p.Ke > 1e-6:
+                discriminant = 1 + 4 * p.Ke * abs(Vr)
+                Efd_saturated = (-1 + np.sqrt(discriminant)) / (2 * p.Ke)
+            else:
+                Efd_saturated = abs(Vr)
+            
+            Efd = Efd_saturated
+            Vf = p.Kf * Efd / p.Tf_s
+            self.Vref_pu = Vt_pu + Vf + Vr / p.Ka
+            
+        else:
+            # UNSATURATED case: use generator's Efd
+            Vr = Vr_unsaturated
+            Efd = Efd_init
+            self.Vref_pu = Vt_pu + Vf + Vr / p.Ka
+        
+        # Set states
         self.states[0] = Vr
-        
-        # Stabilizer feedback
-        self.states[2] = p.Kf * Efd_init / p.Tf_s
-        
-        # Set Vref to maintain current voltage
-        self.Vref_pu = Vt_pu + self.states[2]
+        self.states[1] = Efd
+        self.states[2] = Vf
     
     def compute_derivatives(self, t: float, Vt_pu: float) -> np.ndarray:
         """

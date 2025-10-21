@@ -194,12 +194,12 @@ class ThreePhaseLoadFlowSolver:
             LoadFlowResults object
         """
         if verbose:
-            print("🔧 Starting Three-Phase Load Flow Analysis (PyPSA Method)")
-            print(f"   • Total buses: {len(self.graph.nodes)}")
-            print(f"   • PQ buses: {len(self.pq_buses)}")
-            print(f"   • PV buses: {len(self.pv_buses)}")
-            print(f"   • Slack buses: {len(self.slack_buses)}")
-            print(f"   • System size: {self.Y_matrix.shape[0]} nodes")
+            print("[>>] Starting Three-Phase Load Flow Analysis (PyPSA Method)")
+            print(f"   * Total buses: {len(self.graph.nodes)}")
+            print(f"   * PQ buses: {len(self.pq_buses)}")
+            print(f"   * PV buses: {len(self.pv_buses)}")
+            print(f"   * Slack buses: {len(self.slack_buses)}")
+            print(f"   * System size: {self.Y_matrix.shape[0]} nodes")
         
         # Initialize voltages (all buses)
         V = self._initialize_voltages()
@@ -222,8 +222,8 @@ class ThreePhaseLoadFlowSolver:
             n_pq = len(pq_idx)
             print(f"   • State variables: {len(state)} ({n_pvpq} angles + {n_pq} magnitudes)")
             print(f"   • Equations: {n_pvpq} P + {n_pq} Q = {n_pvpq + n_pq}")
-            print("\n📊 Iteration Progress:")
-            print("   Iter |  Max ΔP (MW) |  Max ΔQ (MVAR) |  Max |F|")
+            print("\n[>>] Iteration Progress:")
+            print("   Iter |  Max dP (MW) |  Max dQ (MVAR) |  Max |F|")
             print("   -----|---------------|-----------------|-------------")
         
         # Newton-Raphson iterations
@@ -279,10 +279,10 @@ class ThreePhaseLoadFlowSolver:
         
         if verbose:
             if converged:
-                print(f"   ✅ Converged in {iteration + 1} iterations")
+                print(f"   [OK] Converged in {iteration + 1} iterations")
             else:
                 print(f"   ❌ Failed to converge after {self.max_iterations} iterations")
-            print(f"   📈 Total system losses: {total_losses_mw:.3f} MW, {total_losses_mvar:.3f} MVAR")
+            print(f"   [>>] Total system losses: {total_losses_mw:.3f} MW, {total_losses_mvar:.3f} MVAR")
         
         # Create results object
         results = LoadFlowResults(

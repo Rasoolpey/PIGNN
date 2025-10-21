@@ -254,18 +254,28 @@ class DAESystem:
         # A11 = Teye - 0.5*h*fx [n x n]
         A11 = self.Teye - 0.5 * h * self.fx
         
-        # A12 = scale*gx^T [n x m]
-        A12 = scale * self.gx.T
+        # A12 = -0.5*h*fy [n x m]
+        A12 = -0.5 * h * self.fy
         
-        # A21 = -0.5*h*fy^T [m x n] (transpose fy to get correct dimensions)
-        A21 = -0.5 * h * self.fy.T
+        # A21 = scale*gx [m x n]
+        A21 = scale * self.gx
         
         # A22 = scale*gy [m x m]
         A22 = scale * self.gy
         
+        # REGULARIZATION: Add identity to handle rank deficiency
+        # The generator interface formulation creates algebraic loops that
+        # result in rank deficiency. Adding regularization makes the system
+        # numerically solvable while maintaining physical behavior.
+        # 
+        # This is equivalent to adding small "virtual admittances" at buses
+        # to break algebraic loops (standard numerical technique).
+        reg = 1e-6  # Increased from 1e-8 for better numerical stability
+        A22_reg = A22 + reg * sparse.eye(self.m)
+        
         # Construct block matrix
         Ac = sparse.bmat([[A11, A12],
-                          [A21, A22]], format='csr')
+                          [A21, A22_reg]], format='csr')
         
         return Ac
     

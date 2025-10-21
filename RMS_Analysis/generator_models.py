@@ -86,16 +86,17 @@ class GENROUGenerator:
     
     def initialize(self, P_pu: float, Q_pu: float, Vt_pu: float, theta_rad: float):
         """
-        Initialize generator from power flow solution using ANDES methodology.
+        Initialize generator from power flow solution using ANDES GENROU methodology.
         
-        Reference: ANDES andes/models/synchronous/genbase.py
+        Reference: ANDES andes/models/synchronous/genrou.py (lines 88-155)
+        Key fix: Uses xd" (subtransient) for equivalent circuit and includes saturation.
         
-        Steps:
-        1. Use complex phasor: V = Vt * exp(j*theta)
-        2. Compute current: I = (P - jQ) / conj(V)
-        3. Compute internal voltage: E' = V + (Ra + jXd') * I
-        4. Rotor angle: delta = angle(E')
-        5. Transform to dq frame using delta
+        Steps (matching ANDES exactly):
+        1. Complex phasor calculations (V, I, Is)
+        2. Subtransient flux psi" and saturation Se0
+        3. Rotor angle delta from geometry
+        4. Transform to dq frame
+        5. Compute transient/subtransient voltages with saturation
         
         Args:
             P_pu: Active power output (pu on machine base)
@@ -106,86 +107,149 @@ class GENROUGenerator:
         p = self.params
         
         # ============================================================
-        # STEP 1: Complex phasor representation (network reference frame)
+        # STEP 1: Complex phasor representation (ANDES genrou.py lines 88-97)
         # ============================================================
-        V_phasor = Vt_pu * np.exp(1j * theta_rad)
+        _V = Vt_pu * np.exp(1j * theta_rad)  # Bus voltage phasor
+        _S = P_pu - 1j * Q_pu                # Complex power (gen convention)
         
-        # ============================================================
-        # STEP 2: Compute current from power balance (generator convention)
-        # S = P + jQ = V * conj(I)  =>  I = conj(S / V)
-        # ============================================================
-        if abs(V_phasor) > 1e-6:
-            S_complex = P_pu + 1j * Q_pu
-            I_phasor = np.conj(S_complex / V_phasor)
+        # **KEY FIX**: Use xd" (subtransient), NOT xd' (transient)!
+        _Zs = p.ra_pu + 1j * p.xd_double_pu  # Equivalent impedance
+        
+        # Terminal current
+        if abs(_V) > 1e-6:
+            _It = _S / np.conj(_V)
         else:
-            # Zero voltage - use small current
-            I_phasor = 0.01 + 1j * 0.01
+            _It = 0.01 + 1j * 0.01
+        
+        # Equivalent current source behind subtransient impedance
+        _Is = _It + _V / _Zs
         
         # ============================================================
-        # STEP 3: Compute transient internal voltage E' (behind Xd')
-        # E' = V + (Ra + jXd') * I
+        # STEP 2: Subtransient flux linkage and saturation (lines 98-103)
         # ============================================================
-        Z_prime = p.ra_pu + 1j * p.xd_prime_pu
-        E_prime_phasor = V_phasor + Z_prime * I_phasor
+        psi20 = _Is * _Zs  # ψ" in stator reference frame
+        psi20_abs = abs(psi20)
+        psi20_arg = np.angle(psi20)
+        
+        # Saturation calculation (quadratic model)
+        # Se0 = B*(|ψ"| - A)^2 / |ψ"| if |ψ"| >= A, else 0
+        SAT_A = self.sat_A  # Typically 1.0
+        SAT_B = self.sat_B  # From S10, S12 parameters
+        
+        if psi20_abs >= SAT_A:
+            Se0 = (psi20_abs - SAT_A)**2 * SAT_B / psi20_abs
+        else:
+            Se0 = 0.0
         
         # ============================================================
-        # STEP 4: Rotor angle is the angle of E' (CORRECT METHOD!)
+        # STEP 3: Rotor angle from geometry (lines 104-109)
         # ============================================================
-        delta = np.angle(E_prime_phasor)
+        # Saturation correction factors
+        gqd = (p.xq_pu - p.xl_pu) / (p.xd_pu - p.xl_pu)  # Ratio of q/d unsaturated reactances
+        
+        _a = psi20_abs * (1 + Se0 * gqd)
+        _b = abs(_It) * (p.xq_double_pu - p.xq_pu)  # Note: xd" = xq" for round rotor
+        
+        # Angle between psi" and It
+        _It_arg = np.angle(_It)
+        _psi20_It_arg = psi20_arg - _It_arg
+        
+        # Solve for delta using geometry
+        numerator = _b * np.cos(_psi20_It_arg)
+        denominator = _b * np.sin(_psi20_It_arg) - _a
+        
+        if abs(denominator) > 1e-6:
+            delta0 = np.arctan(numerator / denominator) + psi20_arg
+        else:
+            # Fallback to simple estimate
+            delta0 = psi20_arg
         
         # ============================================================
-        # STEP 5: Transform to dq frame (rotor reference frame)
-        # Rotation: V_dq = V_phasor * exp(-j*delta)
+        # STEP 4: Park transformation to dq frame (lines 110-122)
         # ============================================================
-        V_dq = V_phasor * np.exp(-1j * delta)
-        I_dq = I_phasor * np.exp(-1j * delta)
-        E_prime_dq = E_prime_phasor * np.exp(-1j * delta)
+        # Transformation: multiply by e^(-j*delta)
+        _Tdq = np.cos(delta0) - 1j * np.sin(delta0)
+        
+        psi20_dq = psi20 * _Tdq
+        It_dq = np.conj(_It * _Tdq)
         
         # Extract dq components
-        Vd = V_dq.imag  # d-axis
-        Vq = V_dq.real  # q-axis
-        Id = I_dq.imag
-        Iq = I_dq.real
-        Eq_prime = E_prime_dq.real  # E' is aligned with q-axis
-        Ed_prime = E_prime_dq.imag
+        psi2d0 = psi20_dq.real         # d-axis subtransient flux
+        psi2q0 = -psi20_dq.imag        # q-axis subtransient flux
+        
+        Id0 = It_dq.imag               # d-axis current
+        Iq0 = It_dq.real               # q-axis current
         
         # ============================================================
-        # STEP 6: Compute subtransient voltages (behind Xd'', Xq'')
+        # STEP 5: Terminal voltage in dq frame (lines 123-124)
         # ============================================================
-        Eq_double = Vq + p.ra_pu * Iq + p.xd_double_pu * Id
-        Ed_double = Vd + p.ra_pu * Id - p.xq_double_pu * Iq
+        vd0 = psi2q0 + p.xq_double_pu * Iq0 - p.ra_pu * Id0
+        vq0 = psi2d0 - p.xd_double_pu * Id0 - p.ra_pu * Iq0
         
         # ============================================================
-        # STEP 7: Field voltage (no saturation initially)
-        # Efd = Eq' + (Xd - Xd') * Id
+        # STEP 6: Field voltage and mechanical torque (lines 125-127)
         # ============================================================
-        Efd = Eq_prime + (p.xd_pu - p.xd_prime_pu) * Id
+        vf0 = (Se0 + 1) * psi2d0 + (p.xd_pu - p.xd_double_pu) * Id0
+        tm0 = (vq0 + p.ra_pu * Iq0) * Iq0 + (vd0 + p.ra_pu * Id0) * Id0
+        
+        # Flux linkages for initial electric torque
+        psid0 = p.ra_pu * Iq0 + vq0
+        psiq0 = -(p.ra_pu * Id0 + vd0)
         
         # ============================================================
-        # STEP 8: Initialize state vector
+        # STEP 7: Transient voltages (lines 137-140) **WITH SATURATION**
+        # ============================================================
+        e1q0 = Id0 * (-p.xd_pu + p.xd_prime_pu) - Se0 * psi2d0 + vf0
+        e1d0 = Iq0 * (p.xq_pu - p.xq_prime_pu) - Se0 * gqd * psi2q0
+        
+        # ============================================================
+        # STEP 8: Subtransient voltages 
+        # Must match derivative equations for zero residual:
+        #   dEq"/dt = (Eq' - Eq" - (xd' - xd")*Id) / Td0"
+        #   dEd"/dt = (Ed' - Ed" + (xq' - xq")*Iq) / Tq0"
+        # At steady state (derivatives = 0):
+        #   Eq" = Eq' - (xd' - xd")*Id
+        #   Ed" = Ed' + (xq' - xq")*Iq
+        # ============================================================
+        e2q0 = e1q0 - (p.xd_prime_pu - p.xd_double_pu) * Id0
+        e2d0 = e1d0 + (p.xq_prime_pu - p.xq_double_pu) * Iq0
+        
+        # ============================================================
+        # STEP 9: Initialize state vector
         # ============================================================
         self.states = np.array([
-            delta,          # Rotor angle (rad) - from angle(E')
-            0.0,            # Speed deviation (synchronous initially)
-            Eq_prime,       # q-axis transient voltage
-            Ed_prime,       # d-axis transient voltage
-            Eq_double,      # q-axis subtransient voltage
-            Ed_double       # d-axis subtransient voltage
+            delta0,    # Rotor angle (rad) - from ANDES geometry
+            0.0,       # Speed deviation (synchronous initially)
+            e1q0,      # Eq' (q-axis transient voltage) - with saturation
+            e1d0,      # Ed' (d-axis transient voltage) - NOT ZERO!
+            e2q0,      # Eq" (q-axis subtransient voltage)
+            e2d0       # Ed" (d-axis subtransient voltage)
         ])
         
-        # Initial algebraic variables
-        self.algebraic = np.array([Id, Iq, Vd, Vq, Efd, P_pu])
+        # Safety: If Tq0_prime = 0 (round rotor), Ed' = 0 (no damper winding)
+        # This overrides the calculation above for true round rotors
+        if p.Tq0_prime_s < 1e-6:
+            # Round rotor: Ed' fixed at zero (no q-axis transient)
+            self.states[3] = 0.0
+        
+        # Initial algebraic variables (IN ROTOR FRAME)
+        # Transformation to network frame happens in algebraic equations
+        self.algebraic = np.array([Id0, Iq0, vd0, vq0, vf0, tm0])
         
         # Store terminal conditions
         self.Vt_pu = Vt_pu
         self.P_pu = P_pu
         self.Q_pu = Q_pu
         
-        # Verify power balance (should be exact at initialization)
-        Pe_check = Vd * Id + Vq * Iq
-        Qe_check = Vq * Id - Vd * Iq
+        # Store initialization parameters for exciter/governor
+        p.Efd_init = vf0
+        p.Pm_init = tm0
         
-        print(f"[OK] {p.gen_name}: delta={np.degrees(delta):.2f}°, "
+        # Verify power balance (in ROTOR frame - should be exact at initialization)
+        Pe_check = vd0 * Id0 + vq0 * Iq0
+        Qe_check = vq0 * Id0 - vd0 * Iq0
+        
+        print(f"[OK] {p.gen_name}: delta={np.degrees(delta0):.2f}°, "
               f"P={P_pu:.4f} pu (check: {Pe_check:.4f}), "
               f"Q={Q_pu:.4f} pu (check: {Qe_check:.4f})")
     
@@ -215,15 +279,15 @@ class GENROUGenerator:
         else:
             return self.sat_B * (E - self.sat_A)**2
     
-    def derivatives(self, Pm_pu: float, Efd_pu: float, Vd: float, Vq: float) -> np.ndarray:
+    def derivatives(self, Pm_pu: float, Efd_pu: float, Id: float, Iq: float) -> np.ndarray:
         """
-        Compute state derivatives.
+        Compute state derivatives with ROTOR-FRAME currents.
         
         Args:
             Pm_pu: Mechanical power (pu on machine base)
             Efd_pu: Field voltage (pu)
-            Vd: d-axis terminal voltage (pu)
-            Vq: q-axis terminal voltage (pu)
+            Id: d-axis current (pu) - IN ROTOR FRAME
+            Iq: q-axis current (pu) - IN ROTOR FRAME
         
         Returns:
             Array of derivatives [d(delta)/dt, d(omega)/dt, ...]
@@ -241,13 +305,13 @@ class GENROUGenerator:
         # Compute saturation
         Sat = self.compute_saturation(Eq_prime)
         
-        # Currents (simplified - should solve network equations)
-        # For now, use simplified relations
-        Id = (Eq_double - Vq) / p.xd_double_pu
-        Iq = (Vd - Ed_double) / p.xq_double_pu
+        # Compute terminal voltages in ROTOR frame (from internal EMFs and rotor currents)
+        # Include stator resistance Ra
+        Vd_rotor = Ed_double - p.ra_pu * Id - p.xq_double_pu * Iq
+        Vq_rotor = Eq_double - p.ra_pu * Iq - p.xd_double_pu * Id
         
-        # Electrical power
-        Pe = Vd * Id + Vq * Iq
+        # Electrical power (in ROTOR frame)
+        Pe = Vd_rotor * Id + Vq_rotor * Iq
         
         # Swing equation
         omega_base = 2 * np.pi * 60.0  # rad/s for 60 Hz
@@ -258,14 +322,19 @@ class GENROUGenerator:
         d_Eq_prime = (Efd_pu - Eq_prime - (p.xd_pu - p.xd_prime_pu - Sat) * Id) / p.Td0_prime_s
         
         # Damper winding d-axis (transient)
-        d_Ed_prime = (-Ed_prime + (p.xq_pu - p.xq_prime_pu) * Iq) / p.Tq0_prime_s
+        # Safety: If Tq0_prime = 0 (round rotor), Ed' = 0 (no damper winding)
+        if p.Tq0_prime_s > 1e-6:
+            d_Ed_prime = (-Ed_prime + (p.xq_pu - p.xq_prime_pu) * Iq) / p.Tq0_prime_s
+        else:
+            # Round rotor: Ed' fixed at zero (no q-axis transient)
+            d_Ed_prime = 0.0
         
         # Subtransient dynamics
         d_Eq_double = (Eq_prime - Eq_double - (p.xd_prime_pu - p.xd_double_pu) * Id) / p.Td0_double_prime_s
         d_Ed_double = (Ed_prime - Ed_double + (p.xq_prime_pu - p.xq_double_pu) * Iq) / p.Tq0_double_prime_s
         
-        # Update algebraic variables
-        self.algebraic = np.array([Id, Iq, Vd, Vq, Efd_pu, Pm_pu])
+        # Update algebraic variables (IN ROTOR FRAME)
+        self.algebraic = np.array([Id, Iq, Vd_rotor, Vq_rotor, Efd_pu, Pm_pu])
         
         return np.array([d_delta, d_omega, d_Eq_prime, d_Ed_prime, d_Eq_double, d_Ed_double])
     
@@ -284,6 +353,27 @@ class GENROUGenerator:
         Id, Iq = self.algebraic[0:2]
         self.P_pu = self.compute_electrical_power()
         self.Q_pu = self.algebraic[3] * Id - self.algebraic[2] * Iq  # Vq*Id - Vd*Iq
+    
+    def get_time_constants(self) -> np.ndarray:
+        """
+        Get time constants for all 6 generator states.
+        
+        Returns:
+            Array of time constants [T_delta, T_omega, T_Eq', T_Ed', T_Eq'', T_Ed'']
+        """
+        p = self.params
+        
+        # Safety: If Tq0' = 0 (round rotor), use large time constant (Ed' = constant)
+        Tq0_prime = p.Tq0_prime_s if p.Tq0_prime_s > 1e-6 else 1e6
+        
+        return np.array([
+            2 * p.H_s,  # Delta (rotor angle) - inertial time constant
+            1.0,  # Omega (speed deviation) - normalized
+            p.Td0_prime_s,  # Eq' (d-axis transient voltage)
+            Tq0_prime,  # Ed' (q-axis transient voltage) - large if Tq0'=0
+            p.Td0_double_prime_s,  # Eq'' (d-axis subtransient voltage)
+            p.Tq0_double_prime_s   # Ed'' (q-axis subtransient voltage)
+        ])
 
 
 def load_genrou_from_h5(h5_file: str) -> Dict[str, GENROUGenerator]:

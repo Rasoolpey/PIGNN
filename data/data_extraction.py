@@ -274,21 +274,39 @@ def extract_generator_type_rms_parameters(gen_type):
     type_params['xd'] = get(gen_type, 'xd')
     type_params['xq'] = get(gen_type, 'xq')
     
-    # CORRECT ATTRIBUTE NAMES (discovered from diagnostic):
-    # Transient reactances use x1d, x1q
-    type_params['xd_prime'] = get(gen_type, 'x1d')
-    type_params['xq_prime'] = get(gen_type, 'x1q')
+    # ============================================================
+    # TRANSIENT AND SUBTRANSIENT REACTANCES
+    # CORRECT PowerFactory attribute names (Simulation RMS tab):
+    #   xds   = Xd'  (transient d-axis)
+    #   xdss  = Xd'' (subtransient d-axis)
+    #   xqs   = Xq'  (transient q-axis)
+    #   xqss  = Xq'' (subtransient q-axis)
+    # Previous names (x1d, x2d, etc.) were WRONG!
+    # ============================================================
+    type_params['xd_prime'] = get(gen_type, 'xds')
+    type_params['xq_prime'] = get(gen_type, 'xqs')
+    type_params['xd_double'] = get(gen_type, 'xdss')
+    type_params['xq_double'] = get(gen_type, 'xqss')
     
-    # Subtransient reactances use x2d, x2q
-    type_params['xd_double'] = get(gen_type, 'x2d')
-    type_params['xq_double'] = get(gen_type, 'x2q')
+    # DIAGNOSTIC: Print what we found
+    print(f"         Reactances: xds={type_params['xd_prime']:.4f}, xdss={type_params['xd_double']:.4f}, xqs={type_params['xq_prime']:.4f}, xqss={type_params['xq_double']:.4f}")
     
-    # Time constants - CORRECT ATTRIBUTE NAMES FOUND!
-    # Discovered from diagnostic: t1d, t1q, t2d, t2q
-    type_params['Td0_prime'] = get(gen_type, 't1d')
-    type_params['Tq0_prime'] = get(gen_type, 't1q')
-    type_params['Td0_double'] = get(gen_type, 't2d')
-    type_params['Tq0_double'] = get(gen_type, 't2q')
+    # ============================================================
+    # TIME CONSTANTS (Simulation RMS tab)
+    # CORRECT PowerFactory attribute names:
+    #   tds0  = Td0'  (open-circuit transient, d-axis)
+    #   tqs0  = Tq0'  (open-circuit transient, q-axis)
+    #   tdss0 = Td0'' (open-circuit subtransient, d-axis)
+    #   tqss0 = Tq0'' (open-circuit subtransient, q-axis)
+    # Previous names (t1d, t2d, etc.) were WRONG!
+    # ============================================================
+    type_params['Td0_prime'] = get(gen_type, 'tds0')
+    type_params['Tq0_prime'] = get(gen_type, 'tqs0')
+    type_params['Td0_double'] = get(gen_type, 'tdss0')
+    type_params['Tq0_double'] = get(gen_type, 'tqss0')
+    
+    # DIAGNOSTIC: Print what we found
+    print(f"         Time constants: tds0={type_params['Td0_prime']:.4f}s, tqs0={type_params['Tq0_prime']:.4f}s, tdss0={type_params['Td0_double']:.4f}s, tqss0={type_params['Tq0_double']:.4f}s")
     
     # Damping - Try multiple locations, fill with typical value if not found
     D_value = None
